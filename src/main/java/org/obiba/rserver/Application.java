@@ -1,4 +1,4 @@
-package hello;
+package org.obiba.rserver;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.SpringApplication;
