@@ -18,7 +18,7 @@ public class RServerController {
   public
   @ResponseBody
   Status getStatus(@RequestParam(value = "name", required = false, defaultValue = "Stranger") String name) {
-    return new Status(rService.isRunning());
+    return new Status(rService);
   }
 
 }

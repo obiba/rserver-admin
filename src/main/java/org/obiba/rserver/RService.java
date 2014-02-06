@@ -39,6 +39,14 @@ public class RService {
 
   private int rserveStatus = -1;
 
+  public Integer getPort() {
+    return port;
+  }
+
+  public String getEncoding() {
+    return encoding;
+  }
+
   public boolean isRunning() {
     return rserveStatus == 0;
   }
