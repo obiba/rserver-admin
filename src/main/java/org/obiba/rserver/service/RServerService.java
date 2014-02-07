@@ -1,4 +1,14 @@
-package org.obiba.rserver;
+/*
+ * Copyright (c) 2014 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.obiba.rserver.service;
 
 import java.io.File;
 import java.util.List;
@@ -21,32 +31,35 @@ import com.google.common.collect.Lists;
  * Service to manage RServer process.
  */
 @Component
-public class RService {
+public class RServerService implements RServerState {
 
-  private static final Logger log = LoggerFactory.getLogger(RService.class);
+  private static final Logger log = LoggerFactory.getLogger(RServerService.class);
 
   @Value("${RSERVER_HOME}")
   private File rServerHomeFile;
 
-  @Value("${R.exec}")
+  @Value("${r.exec}")
   private String exec;
 
-  @Value("${Rserve.port}")
+  @Value("${rserve.port}")
   private Integer port;
 
-  @Value("${Rserve.encoding}")
+  @Value("${rserve.encoding}")
   private String encoding;
 
   private int rserveStatus = -1;
 
+  @Override
   public Integer getPort() {
     return port;
   }
 
+  @Override
   public String getEncoding() {
     return encoding;
   }
 
+  @Override
   public boolean isRunning() {
     return rserveStatus == 0;
   }
@@ -84,7 +97,7 @@ public class RService {
 
     try {
       log.info("Shutting down R server...");
-      //newConnection().shutdown();
+      newConnection().shutdown();
       log.info("R server shut down");
     } catch(Exception e) {
       log.error("R server shutdown failed", e);

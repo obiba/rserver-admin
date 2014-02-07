@@ -1,5 +1,17 @@
+/*
+ * Copyright (c) 2014 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.obiba.rserver;
 
+import org.obiba.rserver.service.RServerService;
+import org.obiba.rserver.service.RServerState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,13 +24,29 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RServerController {
 
   @Autowired
-  private RService rService;
+  private RServerService rServerService;
 
-  @RequestMapping(value = "/status", method = RequestMethod.GET)
+  @RequestMapping(method = RequestMethod.GET)
   public
   @ResponseBody
-  Status getStatus(@RequestParam(value = "name", required = false, defaultValue = "Stranger") String name) {
-    return new Status(rService);
+  RServerState getRServerState() {
+    return rServerService;
+  }
+
+  @RequestMapping(method = RequestMethod.PUT)
+  public
+  @ResponseBody
+  RServerState start() {
+    rServerService.start();
+    return rServerService;
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE)
+  public
+  @ResponseBody
+  RServerState stop() {
+    rServerService.stop();
+    return rServerService;
   }
 
 }
