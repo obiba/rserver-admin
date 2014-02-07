@@ -37,6 +37,9 @@ public class RServerController {
   public
   @ResponseBody
   RServerState start() {
+    if (rServerService.isRunning()) {
+      rServerService.stop();
+    }
     rServerService.start();
     return rServerService;
   }
