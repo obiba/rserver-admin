@@ -23,6 +23,7 @@ case "$1" in
 	purge)
         userdel -f rserver || true
         rm -rf /var/lib/rserver /var/log/rserver /tmp/rserver /etc/rserver /usr/share/rserver
+        update-rc.d rserver remove
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

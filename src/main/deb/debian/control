@@ -1,15 +1,15 @@
-Source: opal
+Source: rserver-admin
 Section: devel
 Priority: extra
 Maintainer: OBiBa <info@obiba.org>
 Build-Depends: debhelper (>= 7.0.15)
 Standards-Version: 3.8.4
 Homepage: http://www.obiba.org
-
 Package: rserver-admin
+Version: [[version]]
 Architecture: all
 Pre-Depends: debconf, coreutils (>= 6.10)
-Depends: ${shlibs:Depends}, ${misc:Depends}, daemon, adduser, psmisc, java7-runtime
+Depends: daemon, adduser, psmisc, java7-runtime
 Suggests: r-cran-rserve
 Description: OBiBa R server controller for biobanks
  Rserver administration tool allows to control remotely a R server through REST web services. This ensures a safe execution context of abitrary R scripts on this R server.

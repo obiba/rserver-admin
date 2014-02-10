@@ -25,7 +25,7 @@ case "$1" in
 
     	# Create rserver user if it doesn't exist.
       if ! id rserver > /dev/null 2>&1 ; then
-        adduser --system --home /var/lib/rserver --no-create-home --disabled-password rserver
+        adduser --system --home /var/lib/rserver --disabled-password rserver
       fi
 
       # rserver file structure on Debian
@@ -34,17 +34,25 @@ case "$1" in
       # /var/lib/rserver: data runtime
       # /var/log: logs
 
-      rm -f /usr/share/rserver
-      ln -s /usr/share/rserver-* /usr/share/rserver
-
       if [ ! -e /var/lib/rserver/conf ] ; then
         ln -s /etc/rserver /var/lib/rserver/conf
       fi
 
+      if [ ! -e /var/log/rserver ] ; then
+        mkdir /var/log/rserver
+        ln -s /var/log/rserver /var/lib/rserver/logs
+      fi
+
+      if [ ! -e /tmp/rserver ] ; then
+        mkdir /tmp/rserver
+      fi
+
       chown -R rserver:adm /var/lib/rserver /var/log/rserver /etc/rserver /tmp/rserver
-      chmod -R 750      /var/lib/rserver /var/log/rserver /etc/rserver/ /tmp/rserver
+      chmod -R 750 /var/lib/rserver /var/log/rserver /etc/rserver/ /tmp/rserver
       find /etc/rserver/ -type f | xargs chmod 640
 
+      update-rc.d rserver defaults
+      /etc/init.d/rserver start
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

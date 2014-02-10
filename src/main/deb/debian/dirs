@@ -1,8 +1,0 @@
-# This is where RSERVER_HOME is located
-var/lib/rserver
-
-# Store rserver log here
-var/log/rserver
-
-# Store rserver.pid here
-tmp/rserver

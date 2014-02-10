@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 buildscript {
     repositories {
         maven { url "http://repo.spring.io/libs-snapshot" }
@@ -31,7 +33,7 @@ tasks.startScripts {
 }
 
 tasks.distZip {
-    archiveName = baseName + "-" + version + ".zip"
+    archiveName = "${baseName}-${version}.zip"
 }
 
 repositories {
@@ -39,7 +41,12 @@ repositories {
     maven { url "http://repo.spring.io/libs-snapshot" }
 }
 
+configurations {
+    jdeb
+}
+
 dependencies {
+    jdeb "org.vafer:jdeb:1.0.1"
     compile("org.springframework.boot:spring-boot-starter-web:1.0.0.RC1") {
         exclude module: "spring-boot-starter-tomcat"
     }
@@ -52,4 +59,38 @@ dependencies {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.10'
+}
+
+def buildTime() {
+    def df = new SimpleDateFormat("yyyyMMddHHmmss")
+    return df.format(new Date())
+}
+
+task distDeb(dependsOn: ['distZip']) << {
+    ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask',
+            classpath: configurations.jdeb.asPath)
+
+    // get the distribution files from the zip
+    ant.unzip(src: "build/distributions/${rootProject.name}-${version}.zip", dest: "build/work")
+
+    // replace version token
+    ant.copy(todir: "build/work/debian") {
+        fileset(dir: "src/main/deb/debian")
+        filterset(begintoken: "[[", endtoken: "]]"){
+            filter(token: "version", value: "${version}")
+        }
+    }
+
+    // build the debian package
+    ant.deb(destfile: "build/distributions/${rootProject.name}-${version}-b${buildTime()}_all.deb",
+            control: 'build/work/debian/',
+            verbose: 'true') {
+
+        tarfileset(dir: "build/work/${rootProject.name}-${version}/bin", prefix: "/usr/share/rserver/bin", excludes: "*.bat", filemode: "755", username: "root", group: "root")
+        tarfileset(dir: "build/work/${rootProject.name}-${version}/lib", prefix: "/usr/share/rserver/lib", includes: "*.jar, sigar/*", username: "root", group: "root")
+        tarfileset(dir: "build/work/${rootProject.name}-${version}/conf", prefix: "/etc/rserver", username: "root", group: "root")
+        tarfileset(dir: "src/main/deb/init.d", includes: "rserver", prefix: "/etc/init.d", filemode: "755", username: "root", group: "root")
+        tarfileset(dir: "src/main/deb/default", includes: "rserver", prefix: "/etc/default", username: "root", group: "root")
+    }
+
 }
