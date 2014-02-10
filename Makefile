@@ -1,3 +1,5 @@
+version=1.0-SNAPSHOT
+
 all:
 	./gradlew clean build
 
@@ -6,7 +8,10 @@ clean:
 
 launch:
 	./gradlew build
-	export RSERVER_HOME=build && java -jar build/libs/rserver-admin-0.1.0.jar
+	export RSERVER_HOME=build && java -jar build/libs/rserver-admin-${version}.jar
+
+zip:
+	./gradlew clean distZip
 
 test: status stop start
 

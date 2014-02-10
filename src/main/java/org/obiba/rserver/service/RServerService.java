@@ -35,9 +35,6 @@ public class RServerService implements RServerState {
 
   private static final Logger log = LoggerFactory.getLogger(RServerService.class);
 
-  @Value("${RSERVER_HOME}")
-  private File rServerHomeFile;
-
   @Value("${r.exec}")
   private String exec;
 
@@ -46,6 +43,9 @@ public class RServerService implements RServerState {
 
   @Value("${rserve.encoding}")
   private String encoding;
+
+  private File rServerHomeFile;
+
 
   private int rserveStatus = -1;
 
@@ -180,7 +180,7 @@ public class RServerService implements RServerState {
   }
 
   private File getWorkingDirectory() {
-    File dir = new File(rServerHomeFile, "work" + File.separator + "R");
+    File dir = new File(getRServerHomeFile(), "work" + File.separator + "R");
     if(!dir.exists()) {
       if (!dir.mkdirs()) {
         log.error("Unable to create: {}", dir.getAbsolutePath());
@@ -190,7 +190,7 @@ public class RServerService implements RServerState {
   }
 
   private File getRserveLog() {
-    File logFile = new File(rServerHomeFile, "logs" + File.separator + "Rserve.log");
+    File logFile = new File(getRServerHomeFile(), "logs" + File.separator + "Rserve.log");
     if(!logFile.getParentFile().exists()) {
       if (!logFile.getParentFile().mkdirs()) {
         log.error("Unable to create: {}", logFile.getParentFile().getAbsolutePath());
@@ -200,8 +200,16 @@ public class RServerService implements RServerState {
   }
 
   private File getRservConf() {
-    return new File(rServerHomeFile, "conf" + File.separator + "Rserv.conf");
+    return new File(getRServerHomeFile(), "conf" + File.separator + "Rserv.conf");
   }
 
+  private File getRServerHomeFile() {
+    if (rServerHomeFile == null) {
+      if (System.getenv().containsKey("RSERVER_HOME")) rServerHomeFile = new File(System.getenv("RSERVER_HOME"));
+      else if (System.getProperties().containsKey("rserver.home")) rServerHomeFile = new File(System.getProperty("rserver.home"));
+      else rServerHomeFile = new File(System.getProperty("user.dir"));
+    }
 
+    return rServerHomeFile;
+  }
 }

@@ -13,10 +13,25 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'application'
+
+mainClassName = "org.obiba.rserver.Application"
 
 jar {
-    baseName = 'rserver-admin'
-    version =  '0.1.0'
+    baseName = rootProject.name
+}
+
+tasks.startScripts {
+    doLast {
+        def scriptFile = file "${outputDir}/${applicationName}"
+        scriptFile.text = scriptFile.text.replace('-classpath "$CLASSPATH"', '-Drserver.home="$APP_HOME" -classpath "$CLASSPATH"')
+        scriptFile = file "${outputDir}/${applicationName}.bat"
+        scriptFile.text = scriptFile.text.replace('-classpath "%CLASSPATH%"', '-Drserver.home="%APP_HOME%" -classpath "%CLASSPATH%"')
+    }
+}
+
+tasks.distZip {
+    archiveName = baseName + "-" + version + ".zip"
 }
 
 repositories {
@@ -28,7 +43,6 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:1.0.0.RC1") {
         exclude module: "spring-boot-starter-tomcat"
     }
-    //compile("org.springframework.boot:spring-boot-starter-actuator:1.0.0.RC1")
     compile("org.springframework.boot:spring-boot-starter-jetty:1.0.0.RC1")
     compile("com.google.guava:guava:15.0")
     compile("net.rforge:Rserve:0.6-8.1")
@@ -37,5 +51,5 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.10'
 }
