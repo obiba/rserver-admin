@@ -59,12 +59,14 @@ def buildTime() {
     return df.format(new Date())
 }
 
-task distDeb(dependsOn: ['distZip']) << {
-    ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask',
-            classpath: configurations.jdeb.asPath)
-
+task distUnzipped(dependsOn: ['distZip']) << {
     // get the distribution files from the zip
     ant.unzip(src: "build/distributions/${rootProject.name}-${version}.zip", dest: "build/work")
+}
+
+task distDeb(dependsOn: ['distUnzipped']) << {
+    ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask',
+            classpath: configurations.jdeb.asPath)
 
     // replace version token
     ant.copy(todir: "build/work/debian") {

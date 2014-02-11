@@ -7,12 +7,8 @@ clean:
 	./gradlew clean
 
 launch:
-	./gradlew build
-	export RSERVER_HOME=build && java -jar build/libs/rserver-admin-${version}.jar
-
-launch-dist:
-	./gradlew clean distZip
-	cd build/distributions && unzip rserver-admin-${version}.zip && cd rserver-admin-${version} && ./bin/rserver-admin
+	./gradlew distUnzipped
+	cd build/work/rserver-admin-${version} && chmod +x ./bin/rserver-admin && ./bin/rserver-admin
 
 test: status stop start
 
