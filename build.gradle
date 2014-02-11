@@ -1,16 +1,5 @@
 import java.text.SimpleDateFormat
 
-buildscript {
-    repositories {
-        maven { url "http://repo.spring.io/libs-snapshot" }
-        maven { url 'http://repo.obiba.org/repo' }
-        mavenLocal()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC1")
-    }
-}
-
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -19,26 +8,17 @@ apply plugin: 'application'
 
 mainClassName = "org.obiba.rserver.Application"
 
-jar {
-    baseName = rootProject.name
-}
-
-tasks.startScripts {
-    doLast {
-        def scriptFile = file "${outputDir}/${applicationName}"
-        scriptFile.text = scriptFile.text.replace('-classpath "$CLASSPATH"', '-Drserver.home="$APP_HOME" -classpath "$CLASSPATH"')
-        scriptFile = file "${outputDir}/${applicationName}.bat"
-        scriptFile.text = scriptFile.text.replace('-classpath "%CLASSPATH%"', '-Drserver.home="%APP_HOME%" -classpath "%CLASSPATH%"')
+buildscript {
+    repositories {
+        maven { url 'http://repo.obiba.org/repo' }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC1")
     }
 }
 
-tasks.distZip {
-    archiveName = "${baseName}-${version}.zip"
-}
-
 repositories {
-    mavenCentral()
-    maven { url "http://repo.spring.io/libs-snapshot" }
+    maven { url 'http://repo.obiba.org/repo' }
 }
 
 configurations {
@@ -55,6 +35,19 @@ dependencies {
     compile("net.rforge:Rserve:0.6-8.1")
     compile("net.rforge:REngine:0.6-8.1")
     testCompile("junit:junit:4.11")
+}
+
+tasks.startScripts {
+    doLast {
+        def scriptFile = file "${outputDir}/${applicationName}"
+        scriptFile.text = scriptFile.text.replace('-classpath "$CLASSPATH"', '-Drserver.home="$APP_HOME" -classpath "$CLASSPATH"')
+        scriptFile = file "${outputDir}/${applicationName}.bat"
+        scriptFile.text = scriptFile.text.replace('-classpath "%CLASSPATH%"', '-Drserver.home="%APP_HOME%" -classpath "%CLASSPATH%"')
+    }
+}
+
+tasks.distZip {
+    archiveName = "${baseName}-${version}.zip"
 }
 
 task wrapper(type: Wrapper) {
@@ -92,5 +85,4 @@ task distDeb(dependsOn: ['distZip']) << {
         tarfileset(dir: "src/main/deb/init.d", includes: "rserver", prefix: "/etc/init.d", filemode: "755", username: "root", group: "root")
         tarfileset(dir: "src/main/deb/default", includes: "rserver", prefix: "/etc/default", username: "root", group: "root")
     }
-
 }
