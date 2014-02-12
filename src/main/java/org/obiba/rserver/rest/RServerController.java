@@ -8,7 +8,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.obiba.rserver;
+package org.obiba.rserver.rest;
 
 import org.obiba.rserver.service.RServerService;
 import org.obiba.rserver.service.RServerState;

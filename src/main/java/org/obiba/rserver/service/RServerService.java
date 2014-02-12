@@ -16,11 +16,12 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.obiba.rserver.ApplicationProperties;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -35,14 +36,9 @@ public class RServerService implements RServerState {
 
   private static final Logger log = LoggerFactory.getLogger(RServerService.class);
 
-  @Value("${r.exec}")
-  private String exec;
-
-  @Value("${rserve.port}")
-  private Integer port;
-
-  @Value("${rserve.encoding}")
-  private String encoding;
+  @Autowired
+  @SuppressWarnings("SpringJavaAutowiringInspection")
+  private ApplicationProperties properties;
 
   private File rServerHomeFile;
 
@@ -50,12 +46,12 @@ public class RServerService implements RServerState {
 
   @Override
   public Integer getPort() {
-    return port;
+    return properties.getrServePort();
   }
 
   @Override
   public String getEncoding() {
-    return encoding;
+    return properties.getrServeEncoding();
   }
 
   @Override
@@ -135,8 +131,8 @@ public class RServerService implements RServerState {
       //conn.login(username, password);
     }
 
-    if(encoding != null) {
-      conn.setStringEncoding(encoding);
+    if(properties.getrServeEncoding() != null) {
+      conn.setStringEncoding(properties.getrServeEncoding());
     }
 
     return conn;
@@ -153,14 +149,14 @@ public class RServerService implements RServerState {
   }
 
   private List<String> getArguments() {
-    List<String> args = Lists.newArrayList(exec, "CMD", "Rserve", "--vanilla");
-    if(port != null && port > 0) {
+    List<String> args = Lists.newArrayList(properties.getrExec(), "CMD", "Rserve", "--vanilla");
+    if(properties.getServerPort() > 0) {
       args.add("--RS-port");
-      args.add(port.toString());
+      args.add(String.valueOf(properties.getServerPort()));
     }
-    if(!Strings.isNullOrEmpty(encoding)) {
+    if(!Strings.isNullOrEmpty(properties.getrServeEncoding())) {
       args.add("--RS-encoding");
-      args.add(encoding);
+      args.add(properties.getrServeEncoding());
     }
     File workDir = getWorkingDirectory();
     args.add("--RS-workdir");
