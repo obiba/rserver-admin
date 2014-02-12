@@ -45,6 +45,7 @@ repositories {
 }
 
 configurations {
+  pmd
   compile
   runtime
   jdeb
@@ -61,7 +62,6 @@ jar {
 }
 
 dependencies {
-  jdeb "org.vafer:jdeb:1.0.1"
 
   compile("com.google.guava:guava:16.0.1")
   compile("net.rforge:REngine:${rVersion}")
@@ -78,6 +78,10 @@ dependencies {
   runtime('ch.qos.logback:logback-classic:1.1.1')
   runtime("org.slf4j:slf4j-api:${slf4jVersion}")
   runtime("org.slf4j:jcl-over-slf4j:${slf4jVersion}")
+
+  jdeb "org.vafer:jdeb:1.0.1"
+  pmd 'net.sourceforge.pmd:pmd:5.0.5'
+
 }
 
 tasks.startScripts {
@@ -267,3 +271,32 @@ artifactory {
   }
 }
 
+// Reporting
+apply plugin: 'project-report'
+reporting {
+  baseDir "$buildDir/reports"
+}
+
+// FindBugs
+apply plugin: 'findbugs'
+findbugs {
+  reportsDir = file("${reporting.baseDir}/findbugs-output")
+  excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
+  ignoreFailures = true
+}
+
+// PMD
+task pmd << {
+  if (!file('src').exists()) return;
+  file("${reporting.baseDir}").mkdirs()
+  ant {
+    taskdef(name: 'pmd', classname: 'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmd.asPath)
+    pmd(shortFilenames: 'true', failonruleviolation: 'false', rulesetfiles: rootProject.file('src/main/resources/pmd-ruleset.xml').toURI().toString()) {
+      formatter(type: 'html', toFile: "${reporting.baseDir}/pmd.html")
+      formatter(type: 'xml', toFile: "${reporting.baseDir}/pmd.xml")
+      fileset(dir: 'src') {
+        include(name: '**/*.java')
+      }
+    }
+  }
+}
