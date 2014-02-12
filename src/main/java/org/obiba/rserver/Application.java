@@ -17,12 +17,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableAutoConfiguration
 @ComponentScan
-@EnableConfigurationProperties(ApplicationProperties.class)
+@EnableAutoConfiguration
+@EnableConfigurationProperties(RProperties.class)
 public class Application {
-
-  private Application() {}
 
   public static void main(String... args) {
     SpringApplication.run(Application.class, args);

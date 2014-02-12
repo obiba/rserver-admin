@@ -81,11 +81,17 @@ dependencies {
 }
 
 tasks.startScripts {
+  classpath += files('src/dist/conf')
   doLast {
-    def scriptFile = file "${outputDir}/${applicationName}"
-    scriptFile.text = scriptFile.text.replace('-classpath "$CLASSPATH"', '-Drserver.home="$APP_HOME" -classpath "$CLASSPATH"')
-    scriptFile = file "${outputDir}/${applicationName}.bat"
-    scriptFile.text = scriptFile.text.replace('-classpath "%CLASSPATH%"', '-Drserver.home="%APP_HOME%" -classpath "%CLASSPATH%"')
+    def unixScriptFile = file getUnixScript()
+    unixScriptFile.text = unixScriptFile.text
+        .replace('-classpath "$CLASSPATH"', '-Drserver.home="$APP_HOME" -classpath "$CLASSPATH"')
+        .replace('$APP_HOME/lib/conf', '$APP_HOME/conf')
+
+    def windowsScriptFile = file getWindowsScript()
+    windowsScriptFile.text = windowsScriptFile.text
+        .replace('-classpath "%CLASSPATH%"', '-Drserver.home="%APP_HOME%" -classpath "%CLASSPATH%"')
+        .replace('%APP_HOME%\\lib\\conf', '%APP_HOME%\\conf')
   }
 }
 
@@ -98,7 +104,7 @@ tasks.withType(JavaCompile) {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.10'
+  gradleVersion = '1.11'
 }
 
 def buildTime() {
