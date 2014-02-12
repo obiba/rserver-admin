@@ -46,7 +46,6 @@ public class RServerService implements RServerState {
 
   private File rServerHomeFile;
 
-
   private int rserveStatus = -1;
 
   @Override
@@ -111,16 +110,12 @@ public class RServerService implements RServerState {
    * @return
    */
   public RConnection newConnection() {
-    RConnection conn;
-
     try {
-      conn = newRConnection();
+      return newRConnection();
     } catch(RserveException e) {
       log.error("Error while connecting to R: {}", e.getMessage());
       throw new RuntimeException(e);
     }
-
-    return conn;
   }
 
   //
@@ -129,6 +124,7 @@ public class RServerService implements RServerState {
 
   /**
    * Create a new RConnection given the R server settings.
+   *
    * @return
    * @throws RserveException
    */
@@ -182,7 +178,7 @@ public class RServerService implements RServerState {
   private File getWorkingDirectory() {
     File dir = new File(getRServerHomeFile(), "work" + File.separator + "R");
     if(!dir.exists()) {
-      if (!dir.mkdirs()) {
+      if(!dir.mkdirs()) {
         log.error("Unable to create: {}", dir.getAbsolutePath());
       }
     }
@@ -192,7 +188,7 @@ public class RServerService implements RServerState {
   private File getRserveLog() {
     File logFile = new File(getRServerHomeFile(), "logs" + File.separator + "Rserve.log");
     if(!logFile.getParentFile().exists()) {
-      if (!logFile.getParentFile().mkdirs()) {
+      if(!logFile.getParentFile().mkdirs()) {
         log.error("Unable to create: {}", logFile.getParentFile().getAbsolutePath());
       }
     }
@@ -204,12 +200,15 @@ public class RServerService implements RServerState {
   }
 
   private File getRServerHomeFile() {
-    if (rServerHomeFile == null) {
-      if (System.getenv().containsKey("RSERVER_HOME")) rServerHomeFile = new File(System.getenv("RSERVER_HOME"));
-      else if (System.getProperties().containsKey("rserver.home")) rServerHomeFile = new File(System.getProperty("rserver.home"));
-      else rServerHomeFile = new File(System.getProperty("user.dir"));
+    if(rServerHomeFile == null) {
+      if(System.getenv().containsKey("RSERVER_HOME")) {
+        rServerHomeFile = new File(System.getenv("RSERVER_HOME"));
+      } else if(System.getProperties().containsKey("rserver.home")) {
+        rServerHomeFile = new File(System.getProperty("rserver.home"));
+      } else {
+        rServerHomeFile = new File(System.getProperty("user.dir"));
+      }
     }
-
     return rServerHomeFile;
   }
 }

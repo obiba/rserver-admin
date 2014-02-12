@@ -10,6 +10,9 @@ launch:
 	./gradlew distUnzipped
 	cd build/work/rserver-admin-${version} && chmod +x ./bin/rserver-admin && ./bin/rserver-admin
 
+dependencyUpdates:
+	./gradlew dependencyUpdates -Drevision=release
+
 test: status stop start
 
 status:

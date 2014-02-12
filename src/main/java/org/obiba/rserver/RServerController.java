@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -27,17 +26,15 @@ public class RServerController {
   private RServerService rServerService;
 
   @RequestMapping(method = RequestMethod.GET)
-  public
   @ResponseBody
-  RServerState getRServerState() {
+  public RServerState getRServerState() {
     return rServerService;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public
   @ResponseBody
-  RServerState start() {
-    if (rServerService.isRunning()) {
+  public RServerState start() {
+    if(rServerService.isRunning()) {
       rServerService.stop();
     }
     rServerService.start();
@@ -45,9 +42,8 @@ public class RServerController {
   }
 
   @RequestMapping(method = RequestMethod.DELETE)
-  public
   @ResponseBody
-  RServerState stop() {
+  public RServerState stop() {
     rServerService.stop();
     return rServerService;
   }
