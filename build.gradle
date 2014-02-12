@@ -63,25 +63,25 @@ jar {
 
 dependencies {
 
-  compile("com.google.guava:guava:16.0.1")
-  compile("net.rforge:REngine:${rVersion}")
-  compile("net.rforge:Rserve:${rVersion}")
-  compile("org.slf4j:slf4j-api:${slf4jVersion}")
-  compile("org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}")
+  compile "com.google.guava:guava:16.0.1"
+  compile "net.rforge:REngine:${rVersion}"
+  compile "net.rforge:Rserve:${rVersion}"
+  compile "org.slf4j:slf4j-api:${slf4jVersion}"
+  compile "org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}"
   compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
     exclude module: "spring-boot-starter-tomcat"
   }
 
-  testCompile("junit:junit:4.11")
-  testCompile("org.easytesting:fest-assert-core:2.0M10")
+  testCompile "junit:junit:4.11"
+  testCompile "org.easytesting:fest-assert-core:2.0M10"
+  testCompile "org.mockito:mockito-all:1.9.5"
 
-  runtime('ch.qos.logback:logback-classic:1.1.1')
-  runtime("org.slf4j:slf4j-api:${slf4jVersion}")
-  runtime("org.slf4j:jcl-over-slf4j:${slf4jVersion}")
+  runtime "ch.qos.logback:logback-classic:1.1.1"
+  runtime "org.slf4j:slf4j-api:${slf4jVersion}"
+  runtime "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
 
   jdeb "org.vafer:jdeb:1.0.1"
   pmd 'net.sourceforge.pmd:pmd:5.0.5'
-
 }
 
 tasks.startScripts {
