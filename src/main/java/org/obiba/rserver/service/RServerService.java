@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.obiba.rserver.RProperties;
+import org.obiba.rserver.Resources;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
@@ -39,8 +40,6 @@ public class RServerService implements RServerState {
   @Autowired
   @SuppressWarnings("SpringJavaAutowiringInspection")
   private RProperties properties;
-
-  private File rServerHomeFile;
 
   private int rserveStatus = -1;
 
@@ -133,9 +132,9 @@ public class RServerService implements RServerState {
   private RConnection newRConnection() throws RserveException {
     RConnection conn = new RConnection();
 
-    if(conn.needLogin()) {
-      //conn.login(username, password);
-    }
+//    if(conn.needLogin()) {
+//      conn.login(username, password);
+//    }
 
     if(properties.getServerEncoding() != null) {
       conn.setStringEncoding(properties.getServerEncoding());
@@ -178,7 +177,7 @@ public class RServerService implements RServerState {
   }
 
   private File getWorkingDirectory() {
-    File dir = new File(getRServerHomeFile(), "work" + File.separator + "R");
+    File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
     if(!dir.exists()) {
       if(!dir.mkdirs()) {
         log.error("Unable to create: {}", dir.getAbsolutePath());
@@ -188,7 +187,7 @@ public class RServerService implements RServerState {
   }
 
   private File getRserveLog() {
-    File logFile = new File(getRServerHomeFile(), "logs" + File.separator + "Rserve.log");
+    File logFile = new File(Resources.getRServerHomeDir(), "logs" + File.separator + "Rserve.log");
     if(!logFile.getParentFile().exists()) {
       if(!logFile.getParentFile().mkdirs()) {
         log.error("Unable to create: {}", logFile.getParentFile().getAbsolutePath());
@@ -198,19 +197,7 @@ public class RServerService implements RServerState {
   }
 
   private File getRservConf() {
-    return new File(getRServerHomeFile(), "conf" + File.separator + "Rserv.conf");
+    return new File(Resources.getRServerHomeDir(), "conf" + File.separator + "Rserv.conf");
   }
 
-  private File getRServerHomeFile() {
-    if(rServerHomeFile == null) {
-      if(System.getenv().containsKey("RSERVER_HOME")) {
-        rServerHomeFile = new File(System.getenv("RSERVER_HOME"));
-      } else if(System.getProperties().containsKey("rserver.home")) {
-        rServerHomeFile = new File(System.getProperty("rserver.home"));
-      } else {
-        rServerHomeFile = new File(System.getProperty("user.dir"));
-      }
-    }
-    return rServerHomeFile;
-  }
 }

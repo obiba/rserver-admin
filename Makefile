@@ -9,10 +9,21 @@ clean:
 
 launch:
 	./gradlew distUnzipped
-	export RSERVER_HOME=${current_dir}/build/work/rserver-admin-${version} && \
+	export RSERVER_HOME=$(shell pwd)/build/work/rserver-admin-${version} && \
 	cd build/work/rserver-admin-${version} && \
 	chmod +x ./bin/rserver-admin && \
 	./bin/rserver-admin
+
+launch-debug:
+	./gradlew distUnzipped
+	export RSERVER_HOME=$(shell pwd)/build/work/rserver-admin-${version} && \
+	export JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n && \
+	cd build/work/rserver-admin-${version} && \
+	chmod +x ./bin/rserver-admin && \
+	./bin/rserver-admin
+
+log:
+	tail -f build/work/rserver-admin-${version}/logs/rserver-admin.log
 
 dependencyUpdates:
 	./gradlew dependencyUpdates -Drevision=release
