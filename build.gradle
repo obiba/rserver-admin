@@ -11,6 +11,12 @@ apply plugin: 'maven-publish'
 apply plugin: 'artifactory-publish'
 apply plugin: 'errorprone'
 
+// simulate Maven profile. Run as './gradlew -Pprofile=ci-build'
+if (profile) {
+  println "Use profile: ${profile}"
+  apply from: profile + '-profile.gradle'
+}
+
 group = 'org.obiba.rserver'
 
 mainClassName = "org.obiba.rserver.Application"
@@ -121,7 +127,6 @@ task distUnzipped(dependsOn: ['distZip']) << {
 }
 
 task distDeb(dependsOn: ['distUnzipped']) << {
-  ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask', classpath: configurations.jdeb.asPath)
 
   // replace version token
   ant.copy(todir: "build/work/debian") {
@@ -132,6 +137,7 @@ task distDeb(dependsOn: ['distUnzipped']) << {
   }
 
   // build the debian package
+  ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask', classpath: configurations.jdeb.asPath)
   ant.deb(
       destfile: "build/distributions/${rootProject.name}-${version}-b${buildTime()}_all.deb",
       control: 'build/work/debian/',

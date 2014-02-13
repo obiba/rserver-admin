@@ -22,6 +22,9 @@ launch-debug:
 	chmod +x ./bin/rserver-admin && \
 	./bin/rserver-admin
 
+deb:
+	./gradlew distDeb
+
 log:
 	tail -f build/work/rserver-admin-${version}/logs/rserver-admin.log
 
