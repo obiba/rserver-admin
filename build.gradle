@@ -11,10 +11,10 @@ apply plugin: 'maven-publish'
 apply plugin: 'artifactory-publish'
 apply plugin: 'errorprone'
 
-// simulate Maven profile. Run as './gradlew -Pprofile=ci-build'
-if (profile) {
-  println "Use profile: ${profile}"
-  apply from: profile + '-profile.gradle'
+// simulate Maven profile.
+// Run as './gradlew -Pprofile=ci-build' or use gradle.properties
+def isCiBuild() {
+  return project.hasProperty("profile") && profile == "ci-build";
 }
 
 group = 'org.obiba.rserver'
@@ -30,6 +30,9 @@ ext {
   rVersion = '0.6-8.1'
   slf4jVersion = '1.7.6'
   springBootVersion = '1.0.0.RC1'
+
+  def buildTime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+  debFile = "${rootProject.name}-${version}-b${buildTime}_all.deb"
 }
 
 buildscript {
@@ -117,16 +120,12 @@ task wrapper(type: Wrapper) {
   gradleVersion = '1.10'
 }
 
-def buildTime() {
-  return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
-}
-
-task distUnzipped(dependsOn: ['distZip']) << {
+task distUnzipped(dependsOn: distZip) << {
   // get the distribution files from the zip
   ant.unzip(src: "build/distributions/${rootProject.name}-${version}.zip", dest: "build/work")
 }
 
-task distDeb(dependsOn: ['distUnzipped']) << {
+task distDeb(dependsOn: distUnzipped) << {
 
   // replace version token
   ant.copy(todir: "build/work/debian") {
@@ -139,7 +138,7 @@ task distDeb(dependsOn: ['distUnzipped']) << {
   // build the debian package
   ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask', classpath: configurations.jdeb.asPath)
   ant.deb(
-      destfile: "build/distributions/${rootProject.name}-${version}-b${buildTime()}_all.deb",
+      destfile: "build/distributions/${debFile}",
       control: 'build/work/debian/',
       verbose: 'true') {
 
@@ -181,6 +180,21 @@ task distDeb(dependsOn: ['distUnzipped']) << {
     )
   }
 }
+
+task signDeb(dependsOn: distDeb, type: Exec) {
+  workingDir "build/distributions"
+  commandLine 'echo', "'TODO sign deb'"
+//    commandLine 'dpkg-sig', '--sign', 'builder', "${distDeb.debFile}"
+//    commandLine 'debsigs', '--sign', 'origin', "${debFile}"
+}
+
+
+task publishDeb(dependsOn: distDeb, type: Exec) {
+  workingDir "build/distributions"
+  commandLine 'echo', "'TODO copy deb'"
+}
+
+if (isCiBuild()) publishDeb.dependsOn signDeb
 
 // support incremental build for test task and artifactoryPublish
 // see http://www.practicalgradle.org/blog/2011/06/incremental-tests-with-jenkins/
