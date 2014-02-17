@@ -183,9 +183,9 @@ task distDeb(dependsOn: distUnzipped) << {
 
 task signDeb(dependsOn: distDeb, type: Exec) {
   workingDir "build/distributions"
-  commandLine 'echo', "'TODO sign deb'"
+//  commandLine 'echo', "'TODO sign deb'"
 //    commandLine 'dpkg-sig', '--sign', 'builder', "${debFile}"
-//    commandLine 'debsigs', '--sign', 'origin', "${debFile}"
+  commandLine 'debsigs', '--sign', 'origin', "${debFile}"
 }
 
 task publishDeb(dependsOn: distDeb) {
