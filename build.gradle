@@ -139,11 +139,7 @@ task distDeb(dependsOn: distUnzipped) << {
 
   // build the debian package
   ant.taskdef(name: 'deb', classname: 'org.vafer.jdeb.ant.DebAntTask', classpath: configurations.jdeb.asPath)
-  ant.deb(
-      destfile: "build/distributions/${debFile}",
-      control: 'build/work/debian/',
-      verbose: 'true') {
-
+  ant.deb(destfile: "build/distributions/${debFile}", control: 'build/work/debian/', verbose: 'true') {
     tarfileset(
         dir: "build/work/${rootProject.name}-${version}/bin",
         prefix: "/usr/share/rserver/bin",
@@ -218,7 +214,6 @@ task publishDist(dependsOn: distZip) {
     }
   }
 }
-
 
 task publishAll(dependsOn: [publishDist, publishDeb]) {
 }
