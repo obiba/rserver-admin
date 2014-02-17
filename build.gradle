@@ -188,40 +188,37 @@ task signDeb(dependsOn: distDeb, type: Exec) {
 //    commandLine 'debsigs', '--sign', 'origin', "${debFile}"
 }
 
-//task publishDeb(dependsOn: distDeb) {
-//  if (project.hasProperty("obibaDebDir")) {
-//    copy {
-//      from "build/distributions/${debFile}"
-//      into "${obibaDebDir}"
-//    }
-//  } else {
-//    throw new GradleScriptException("Cannot copy deb file as 'obibaDebDir' property is not defined", null)
-//  }
-//}
-//
-//if (isCiBuild()) publishDeb.dependsOn signDeb
-//
-//task publishDist(dependsOn: distZip) {
-//  if (project.hasProperty("obibaDownloadDir")) {
-//    copy {
-//      from "build/distributions/${rootProject.name}-${version}.zip"
-//      into "${obibaDownloadDir}" // TODO stable/unstable
-//    }
-//  } else {
-//    throw new GradleScriptException("Cannot copy dist file as 'obibaDownloadDir' property is not defined", null)
-//  }
-//}
-//
-//task publish(dependsOn: publishDeb, publishDist) {
-//  if (project.hasProperty("obibaDebDir")) {
-//    copy {
-//      from "build/distributions/${debFile}"
-//      into "${obibaDebDir}"
-//    }
-//  } else {
-//    throw new GradleScriptException("Cannot copy deb file as 'obibaDebDir' property is not defined", null)
-//  }
-//}
+task publishDeb(dependsOn: distDeb) {
+  doLast() {
+    if (project.hasProperty("obibaDebDir")) {
+      copy {
+        from "build/distributions/${debFile}"
+        into "${obibaDebDir}"
+      }
+    } else {
+      throw new GradleScriptException("Cannot copy deb file as 'obibaDebDir' property is not defined", null)
+    }
+  }
+}
+
+if (isCiBuild()) publishDeb.dependsOn signDeb
+
+task publishDist(dependsOn: distZip) {
+  doLast() {
+    if (project.hasProperty("obibaDownloadDir")) {
+      copy {
+        from "build/distributions/${rootProject.name}-${version}.zip"
+        into "${obibaDownloadDir}" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+      }
+    } else {
+      throw new GradleScriptException("Cannot copy dist file as 'obibaDownloadDir' property is not defined", null)
+    }
+  }
+}
+
+
+task publishAll(dependsOn: [publishDist, publishDeb]) {
+}
 
 // support incremental build for test task and artifactoryPublish
 // see http://www.practicalgradle.org/blog/2011/06/incremental-tests-with-jenkins/
