@@ -183,14 +183,14 @@ task distDeb(dependsOn: distUnzipped) << {
 
 task signDeb(dependsOn: distDeb, type: Exec) {
   workingDir "build/distributions"
-//  commandLine 'echo', "'TODO sign deb'"
-//    commandLine 'dpkg-sig', '--sign', 'builder', "${debFile}"
   commandLine 'debsigs', '--sign', 'origin', "${debFile}"
+  // commandLine 'dpkg-sig', '--sign', 'builder', "${debFile}"
 }
 
 task publishDeb(dependsOn: distDeb) {
   doLast() {
     if (project.hasProperty("obibaDebDir")) {
+      println "Copy to ${obibaDebDir}"
       copy {
         from "build/distributions/${debFile}"
         into "${obibaDebDir}"
@@ -206,6 +206,7 @@ if (isCiBuild()) publishDeb.dependsOn signDeb
 task publishDist(dependsOn: distZip) {
   doLast() {
     if (project.hasProperty("obibaDownloadDir")) {
+      println "Copy to ${obibaDownloadDir}" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
       copy {
         from "build/distributions/${rootProject.name}-${version}.zip"
         into "${obibaDownloadDir}" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
