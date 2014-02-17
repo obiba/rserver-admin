@@ -190,10 +190,10 @@ task signDeb(dependsOn: distDeb, type: Exec) {
 task publishDeb(dependsOn: distDeb) {
   doLast() {
     if (project.hasProperty("obibaDebDir")) {
-      println "Copy to ${obibaDebDir}"
+      println "Copy to ${obibaDebDir}/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
       copy {
         from "build/distributions/${debFile}"
-        into "${obibaDebDir}"
+        into "${obibaDebDir}/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
       }
     } else {
       throw new GradleScriptException("Cannot copy deb file as 'obibaDebDir' property is not defined", null)
