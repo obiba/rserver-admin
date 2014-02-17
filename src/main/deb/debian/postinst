@@ -51,8 +51,8 @@ case "$1" in
       chmod -R 750 /var/lib/rserver /var/log/rserver /etc/rserver/ /tmp/rserver
       find /etc/rserver/ -type f | xargs chmod 640
 
-      update-rc.d rserver defaults
-      /etc/init.d/rserver start
+      #update-rc.d rserver defaults
+      #/etc/init.d/rserver start
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

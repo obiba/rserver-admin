@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-      /etc/init.d/rserver stop
+      #/etc/init.d/rserver stop
     ;;
 
     failed-upgrade)
