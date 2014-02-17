@@ -206,10 +206,10 @@ if (isCiBuild()) publishDeb.dependsOn signDeb
 task publishDist(dependsOn: distZip) {
   doLast() {
     if (project.hasProperty("obibaDownloadDir")) {
-      println "Copy to ${obibaDownloadDir}" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+      println "Copy to ${obibaDownloadDir}/rserver-admin/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
       copy {
         from "build/distributions/${rootProject.name}-${version}.zip"
-        into "${obibaDownloadDir}" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+        into "${obibaDownloadDir}/rserver-admin/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
       }
     } else {
       throw new GradleScriptException("Cannot copy dist file as 'obibaDownloadDir' property is not defined", null)
