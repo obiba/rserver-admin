@@ -33,6 +33,8 @@ ext {
 
   def buildTime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
   debFile = "${rootProject.name}-${version}-b${buildTime}_all.deb"
+
+  deployDir = version.contains("SNAPSHOT") ? "unstable" : "stable"
 }
 
 buildscript {
@@ -190,10 +192,10 @@ task signDeb(dependsOn: distDeb, type: Exec) {
 task publishDeb(dependsOn: distDeb) {
   doLast() {
     if (project.hasProperty("obibaDebDir")) {
-      println "Copy to ${obibaDebDir}/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+      println "Copy to ${obibaDebDir}/${deployDir}"
       copy {
         from "build/distributions/${debFile}"
-        into "${obibaDebDir}/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+        into "${obibaDebDir}/${deployDir}"
       }
     } else {
       throw new GradleScriptException("Cannot copy deb file as 'obibaDebDir' property is not defined", null)
@@ -206,10 +208,10 @@ if (isCiBuild()) publishDeb.dependsOn signDeb
 task publishDist(dependsOn: distZip) {
   doLast() {
     if (project.hasProperty("obibaDownloadDir")) {
-      println "Copy to ${obibaDownloadDir}/rserver-admin/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+      println "Copy to ${obibaDownloadDir}/rserver-admin/${deployDir}"
       copy {
         from "build/distributions/${rootProject.name}-${version}.zip"
-        into "${obibaDownloadDir}/rserver-admin/" + (version.contains("SNAPSHOT") ? "unstable" : "stable")
+        into "${obibaDownloadDir}/rserver-admin/${deployDir}"
       }
     } else {
       throw new GradleScriptException("Cannot copy dist file as 'obibaDownloadDir' property is not defined", null)
