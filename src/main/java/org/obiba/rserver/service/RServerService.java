@@ -11,6 +11,7 @@
 package org.obiba.rserver.service;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -99,6 +100,10 @@ public class RServerService implements RServerState {
       log.info("Shutting down R server...");
       newConnection().shutdown();
       log.info("R server shut down");
+      File workDir = getWorkingDirectory();
+      for (File file : workDir.listFiles()) {
+        delete(file);
+      }
     } catch(Exception e) {
       log.error("R server shutdown failed", e);
     }
@@ -175,6 +180,21 @@ public class RServerService implements RServerState {
 
     return args;
   }
+
+  private void delete(File file) {
+    if (file.isDirectory()) {
+      for (File f : file.listFiles()) {
+        delete(f);
+      }
+    }
+    if (!file.isDirectory() || file.list().length == 0) {
+      if (!file.delete()) {
+        log.warn("Unable to delete file: " + file.getAbsolutePath());
+      }
+    }
+  }
+
+
 
   private File getWorkingDirectory() {
     File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
