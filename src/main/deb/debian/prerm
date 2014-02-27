@@ -17,9 +17,19 @@ set -e
 # the debian-policy package
 
 
+stopRserver() {
+	if [ -x "/etc/init.d/rserver" ]; then
+		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+			invoke-rc.d rserver stop || true
+		else
+			/etc/init.d/rserver stop || true
+		fi
+	fi
+}
+
 case "$1" in
     remove|upgrade|deconfigure)
-      #/etc/init.d/rserver stop
+      stopRserver
     ;;
 
     failed-upgrade)
