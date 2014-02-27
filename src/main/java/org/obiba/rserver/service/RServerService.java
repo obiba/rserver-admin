@@ -11,8 +11,8 @@
 package org.obiba.rserver.service;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 /**
@@ -46,12 +45,12 @@ public class RServerService implements RServerState {
 
   @Override
   public Integer getPort() {
-    return properties.getServerPort();
+    return Resources.getRservePort();
   }
 
   @Override
   public String getEncoding() {
-    return properties.getServerEncoding();
+    return Resources.getRserveEncoding();
   }
 
   @Override
@@ -99,15 +98,15 @@ public class RServerService implements RServerState {
     try {
       log.info("Shutting down R server...");
       newConnection().shutdown();
+      rserveStatus = -1;
       log.info("R server shut down");
       File workDir = getWorkingDirectory();
-      for (File file : workDir.listFiles()) {
+      for(File file : workDir.listFiles()) {
         delete(file);
       }
     } catch(Exception e) {
       log.error("R server shutdown failed", e);
     }
-    rserveStatus = -1;
   }
 
   /**
@@ -137,13 +136,18 @@ public class RServerService implements RServerState {
   private RConnection newRConnection() throws RserveException {
     RConnection conn = new RConnection();
 
-//    if(conn.needLogin()) {
-//      conn.login(username, password);
-//    }
-
-    if(properties.getServerEncoding() != null) {
-      conn.setStringEncoding(properties.getServerEncoding());
+    if(conn.needLogin()) {
+      Map<String, String> conf = Resources.getRservConf();
+      if(conf.containsKey("auth") && conf.get("auth").equals("required") && conf.containsKey("pwdfile")) {
+        Map<String, String> pwds = Resources.getUsernamePasswords(conf.get("pwdfile"));
+        if(!pwds.isEmpty()) {
+          Map.Entry<String, String> entry = pwds.entrySet().iterator().next();
+          conn.login(entry.getKey(), entry.getValue());
+        }
+      }
     }
+
+    conn.setStringEncoding(Resources.getRserveEncoding());
 
     return conn;
   }
@@ -154,25 +158,17 @@ public class RServerService implements RServerState {
     ProcessBuilder pb = new ProcessBuilder(args);
     pb.directory(getWorkingDirectory());
     pb.redirectErrorStream(true);
-    pb.redirectOutput(ProcessBuilder.Redirect.appendTo(getRserveLog()));
+    pb.redirectOutput(ProcessBuilder.Redirect.appendTo(getRserveLogFile()));
     return pb;
   }
 
   private List<String> getArguments() {
     List<String> args = Lists.newArrayList(properties.getExec(), "CMD", "Rserve", "--vanilla");
-    if(properties.getServerPort() > 0) {
-      args.add("--RS-port");
-      args.add(String.valueOf(properties.getServerPort()));
-    }
-    if(!Strings.isNullOrEmpty(properties.getServerEncoding())) {
-      args.add("--RS-encoding");
-      args.add(properties.getServerEncoding());
-    }
     File workDir = getWorkingDirectory();
     args.add("--RS-workdir");
     args.add(workDir.getAbsolutePath());
 
-    File conf = getRservConf();
+    File conf = Resources.getRservConfFile();
     if(conf.exists()) {
       args.add("--RS-conf");
       args.add(conf.getAbsolutePath());
@@ -182,19 +178,17 @@ public class RServerService implements RServerState {
   }
 
   private void delete(File file) {
-    if (file.isDirectory()) {
-      for (File f : file.listFiles()) {
+    if(file.isDirectory()) {
+      for(File f : file.listFiles()) {
         delete(f);
       }
     }
-    if (!file.isDirectory() || file.list().length == 0) {
-      if (!file.delete()) {
+    if(!file.isDirectory() || file.list().length == 0) {
+      if(!file.delete()) {
         log.warn("Unable to delete file: " + file.getAbsolutePath());
       }
     }
   }
-
-
 
   private File getWorkingDirectory() {
     File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
@@ -206,7 +200,7 @@ public class RServerService implements RServerState {
     return dir;
   }
 
-  private File getRserveLog() {
+  private File getRserveLogFile() {
     File logFile = new File(Resources.getRServerHomeDir(), "logs" + File.separator + "Rserve.log");
     if(!logFile.getParentFile().exists()) {
       if(!logFile.getParentFile().mkdirs()) {
@@ -214,10 +208,6 @@ public class RServerService implements RServerState {
       }
     }
     return logFile;
-  }
-
-  private File getRservConf() {
-    return new File(Resources.getRServerHomeDir(), "conf" + File.separator + "Rserv.conf");
   }
 
 }

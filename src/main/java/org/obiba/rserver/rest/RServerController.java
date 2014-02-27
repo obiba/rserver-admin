@@ -34,10 +34,9 @@ public class RServerController {
   @RequestMapping(method = RequestMethod.PUT)
   @ResponseBody
   public RServerState start() {
-    if(rServerService.isRunning()) {
-      rServerService.stop();
+    if(!rServerService.isRunning()) {
+      rServerService.start();
     }
-    rServerService.start();
     return rServerService;
   }
 

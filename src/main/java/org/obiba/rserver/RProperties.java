@@ -19,10 +19,6 @@ public class RProperties {
 
   private String exec = "/usr/bin/R";
 
-  private int serverPort = 6311;
-
-  private String serverEncoding = "utf8";
-
   public String getExec() {
     return exec;
   }
@@ -31,25 +27,8 @@ public class RProperties {
     this.exec = exec;
   }
 
-  public int getServerPort() {
-    return serverPort;
-  }
-
-  public void setServerPort(int serverPort) {
-    this.serverPort = serverPort;
-  }
-
-  public String getServerEncoding() {
-    return serverEncoding;
-  }
-
-  public void setServerEncoding(String serverEncoding) {
-    this.serverEncoding = serverEncoding;
-  }
-
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("exec", exec).add("serverPort", serverPort)
-        .add("serverEncoding", serverEncoding).toString();
+    return Objects.toStringHelper(this).add("exec", exec).toString();
   }
 }
