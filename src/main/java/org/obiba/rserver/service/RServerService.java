@@ -163,16 +163,16 @@ public class RServerService implements RServerState {
   }
 
   private List<String> getArguments() {
-    List<String> args = Lists.newArrayList(properties.getExec(), "CMD", "Rserve", "--vanilla");
+    StringBuffer rserveArgs = new StringBuffer();
     File workDir = getWorkingDirectory();
-    args.add("--RS-workdir");
-    args.add(workDir.getAbsolutePath());
+    rserveArgs.append(" --RS-workdir ").append(workDir.getAbsolutePath());
 
     File conf = Resources.getRservConfFile();
     if(conf.exists()) {
-      args.add("--RS-conf");
-      args.add(conf.getAbsolutePath());
+      rserveArgs.append(" --RS-conf ").append(conf.getAbsolutePath());
     }
+
+    List<String> args = Lists.newArrayList(properties.getExec(), "-e", "\"library(Rserve) ; Rserve(args='" + rserveArgs + "')\"", "--vanilla");
 
     return args;
   }
