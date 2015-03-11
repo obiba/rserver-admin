@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.google.common.base.Objects;
 
-@ConfigurationProperties(name = "r")
+@ConfigurationProperties(value = "r")
 public class RProperties {
 
   private String exec = "/usr/bin/R";

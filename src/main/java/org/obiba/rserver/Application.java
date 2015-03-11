@@ -12,7 +12,7 @@ package org.obiba.rserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.listener.ConfigFileApplicationListener;
+import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ public class Application {
 
   public static void main(String... args) throws Exception {
     ConfigFileApplicationListener listener = new ConfigFileApplicationListener();
-    listener.setSearchLocations(new String[] { "classpath:", "file:" + Resources.getRServerHomeDir() + "/conf/" });
+    listener.setSearchLocations("classpath:,file:" + Resources.getRServerHomeDir() + "/conf/");
 
     SpringApplication springApp = new SpringApplication(Application.class);
     springApp.addListeners(listener);
