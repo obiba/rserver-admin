@@ -9,7 +9,6 @@ apply plugin: 'versions'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'artifactory-publish'
-apply plugin: 'errorprone'
 
 // simulate Maven profile.
 // Run as './gradlew -Pprofile=ci-build' or use gradle.properties
@@ -43,7 +42,6 @@ buildscript {
   }
   dependencies {
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-1'
-    classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
     classpath "org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC1"
   }
@@ -95,6 +93,14 @@ dependencies {
   pmd 'net.sourceforge.pmd:pmd:5.0.5'
 }
 
+if (JavaVersion.current().isJava8Compatible()) {
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+    }
+  }
+}
+
 tasks.startScripts {
   classpath += files('src/dist/conf')
   doLast {
@@ -119,7 +125,7 @@ tasks.withType(JavaCompile) {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.10'
+  gradleVersion = '1.11'
 }
 
 task distUnzipped(dependsOn: distZip) << {
@@ -320,11 +326,13 @@ reporting {
 }
 
 // FindBugs
-apply plugin: 'findbugs'
-findbugs {
-  reportsDir = file("${reporting.baseDir}/findbugs-output")
-  excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
-  ignoreFailures = true
+if (!JavaVersion.current().isJava8Compatible()) {
+  apply plugin: 'findbugs'
+  findbugs {
+    reportsDir = file("${reporting.baseDir}/findbugs-output")
+    excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
+    ignoreFailures = true
+  }
 }
 
 // PMD
