@@ -163,7 +163,7 @@ public class RServerService implements RServerState {
   }
 
   private List<String> getArguments() {
-    StringBuffer rserveArgs = new StringBuffer();
+    StringBuffer rserveArgs = new StringBuffer("--vanilla");
     File workDir = getWorkingDirectory();
     rserveArgs.append(" --RS-workdir ").append(workDir.getAbsolutePath());
 
@@ -172,7 +172,7 @@ public class RServerService implements RServerState {
       rserveArgs.append(" --RS-conf ").append(conf.getAbsolutePath());
     }
 
-    List<String> args = Lists.newArrayList(properties.getExec(), "-e", "\"library(Rserve) ; Rserve(args='" + rserveArgs + "')\"", "--vanilla");
+    List<String> args = Lists.newArrayList(properties.getExec(), "-e", "library(Rserve) ; Rserve(args='" + rserveArgs + "')");
 
     return args;
   }
