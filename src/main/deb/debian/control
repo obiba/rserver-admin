@@ -1,12 +1,12 @@
-Source: rserver-admin
+Source: rserver
 Section: devel
 Priority: extra
 Maintainer: OBiBa <info@obiba.org>
 Build-Depends: debhelper (>= 7.0.15)
 Standards-Version: 3.8.4
 Homepage: http://www.obiba.org
+
 Package: rserver-admin
-Version: [[version]]
 Architecture: all
 Pre-Depends: debconf, coreutils (>= 6.10)
 Depends: daemon, adduser, psmisc, java7-runtime, r-cran-rserve
