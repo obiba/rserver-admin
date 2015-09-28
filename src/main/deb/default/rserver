@@ -8,9 +8,6 @@ NAME=rserver
 # location of java
 JAVA=/usr/bin/java
 
-# arguments to pass to java
-JAVA_ARGS="-Xmx128M -XX:MaxPermSize=128M -XX:+UseG1GC"
-
 # ulimit
 # Increase maximum open files for the rserver process
 # Comment this out to use the system default
@@ -30,3 +27,6 @@ RSERVER_LOG=/var/log/rserver
 
 # arguments to pass to rserver.
 RSERVER_ARGS=""
+
+# arguments to pass to java
+JAVA_ARGS="-Xmx128M -XX:MaxPermSize=128M -XX:+UseG1GC"

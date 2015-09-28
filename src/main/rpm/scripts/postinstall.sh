@@ -51,7 +51,7 @@ case "$1" in
     fi
 
     # Install RServe via R
-    Rscript -e "install.packages('Rserve', repos=c('http://cran.rstudio.com'))"
+    Rscript -e "install.packages('Rserve', repos='http://cran.rstudio.com')"
 
     # auto start on reboot
     chkconfig --add rserver

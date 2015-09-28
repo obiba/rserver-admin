@@ -7,11 +7,42 @@
   <version>1.2-SNAPSHOT</version>
   <name>rserver-admin</name>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.2.2.RELEASE</version>
+  </parent>
+
   <profiles>
     <profile>
       <!-- A profile for the builds performed by the continuous integration server -->
       <id>ci-build</id>
       <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>buildnumber-maven-plugin</artifactId>
+              <version>${maven-buildnumber-plugin.version}</version>
+              <executions>
+                <execution>
+                  <id>createBuildNumber</id>
+                  <phase>validate</phase>
+                  <goals>
+                    <goal>create</goal>
+                  </goals>
+                  <configuration>
+                    <format>{0,date,yyyyMMddHHmmss}</format>
+                    <items>
+                      <item>timestamp</item>
+                    </items>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+
         <plugins>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -149,12 +180,111 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-deb</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <property name="deb.dir" value="${basedir}/target/deb" />
+                    <property name="deb.version" value="${project.version}-b${buildNumber}" />
+                    <tstamp>
+                      <!-- http://www.debian.org/doc/debian-policy/ch-source.html -->
+                      <format property="deb.date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en" />
+                    </tstamp>
+
+                    <mkdir dir="${deb.dir}" />
+                    <copy todir="${deb.dir}">
+                      <fileset dir="src/main/deb" />
+                      <filterset>
+                        <filter token="project.version" value="${deb.version}" />
+                        <filter token="date" value="${deb.date}" />
+                      </filterset>
+                    </copy>
+
+                    <copy todir="${deb.dir}/etc/init.d" file="src/main/deb/init.d/rserver"/>
+                    <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rserver"/>
+
+                    <mkdir dir="${deb.dir}/usr/share" />
+                    <copy todir="${deb.dir}/usr/share">
+                      <fileset dir="${basedir}/target/${package.name}-dist"/>
+                    </copy>
+                    <move file="${deb.dir}/usr/share/${package.name}" tofile="${deb.dir}/usr/share/${package.name}" />
+
+                    <mkdir dir="${deb.dir}/etc" />
+                    <move todir="${deb.dir}/etc/rserver">
+                      <fileset dir="${deb.dir}/usr/share/${package.name}/conf" />
+                    </move>
+
+                    <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
+                      <arg value="-b" />
+                      <!-- Uncomment following options to package locally  -->
+                      <arg value="-i" />
+                      <arg value="-us" />
+                      <arg value="-uc" />
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+              <execution>
+                <id>deploy-deb</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <property name="deb.version" value="${project.version}-b${buildNumber}" />
+                    <!-- Deploy deb file in deb repo -->
+                    <copy file="target/${package.name}-${deb.version}_all.deb" todir="${obiba.deb.dir}/${rserver.deploy.dir}" />
+                  </target>
+                </configuration>
+              </execution>
+              <execution>
+                <id>deploy-package</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <!-- Deploy rServer package file in download repo -->
+                    <copy file="target/${package.name}-dist.zip" tofile="${obiba.download.dir}/rserver-admin/${rserver.deploy.dir}/rserver-admin-${project.version}-dist.zip" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
 
   <build>
+    <pluginManagement>
+
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven-release-plugin.version}</version>
+          <configuration>
+            <!-- Use parent version as modules' version -->
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <releaseProfiles>ci-build,release</releaseProfiles>
+            <!-- Comment this profile because Jenkins crashes while performing the release -->
+            <!--<preparationGoals>clean verify install</preparationGoals>-->
+          </configuration>
+        </plugin>
+      </plugins>
+
+    </pluginManagement>
+    
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -177,6 +307,26 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>${maven-buildnumber-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>createBuildNumber</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+            <configuration>
+              <format>{0,date,yyyyMMddHHmmss}</format>
+              <items>
+                <item>timestamp</item>
+              </items>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -184,78 +334,55 @@
     <dependency>
       <groupId>net.rforge</groupId>
       <artifactId>Rserve</artifactId>
-      <version>0.6-8.1</version>
+      <version>${rforge.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <groupId>net.rforge</groupId>
+      <artifactId>REngine</artifactId>
+      <version>${rforge.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
+    </dependency><dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-tomcat</artifactId>
         </exclusion>
       </exclusions>
-      <version>1.2.2.RELEASE</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.7.6</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>16.0.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.rforge</groupId>
-      <artifactId>REngine</artifactId>
-      <version>0.6-8.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>1.2.2.RELEASE</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.6</version>
+      <version>${slf4j.version}</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.1.1</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert-core</artifactId>
-      <version>2.0M10</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <properties>
+    <rserver.deploy.dir>unstable</rserver.deploy.dir>
     <install.dir>/usr/share</install.dir>
     <rserver.dir>${install.dir}/rserver-admin</rserver.dir>
     <package.name>rserver-admin-${project.version}</package.name>
@@ -266,5 +393,76 @@
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
+
+    <guava.version>18.0</guava.version>
+    <slf4j.version>1.7.6</slf4j.version>
+    <rforge.version>0.6-8.1</rforge.version>
+    <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
+    <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>obiba.org</id>
+      <name>Obiba Maven 2.x Repository</name>
+      <url>http://repo.obiba.org/repo</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>obiba</id>
+      <url>http://repo.obiba.org/repo</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <prerequisites>
+    <maven>3.0.0</maven>
+  </prerequisites>
+
+  <distributionManagement>
+
+    <repository>
+      <id>obiba-releases</id>
+      <url>http://repo.obiba.org/libs-release-local</url>
+    </repository>
+
+    <snapshotRepository>
+      <id>obiba-snapshots</id>
+      <url>http://repo.obiba.org/libs-snapshot-local</url>
+    </snapshotRepository>
+
+  </distributionManagement>
+
+  <scm>
+    <connection>scm:git:git://github.com/obiba/rserver-admin.git</connection>
+    <developerConnection>scm:git:https://github.com/obiba/rserver-admin.git</developerConnection>
+    <url>https://github.com/obiba/rserver-admin</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.obiba.org</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://ci.obiba.org/view/Opal/job/Rserver-admin/</url>
+  </ciManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>OBiBa Users</name>
+      <post>obiba-users@googlegroups.com</post>
+      <archive>https://groups.google.com/forum/?fromgroups#!forum/obiba-users</archive>
+    </mailingList>
+  </mailingLists>
+
 </project>

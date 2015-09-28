@@ -40,7 +40,6 @@
         <include>**/*.*</include>
       </includes>
     </fileSet>
-
   </fileSets>
   <dependencySets>
     <dependencySet>
@@ -50,8 +49,6 @@
       <scope>runtime</scope>
       <excludes>
         <exclude>*commons-logging*</exclude>
-        <exclude>*tomcat*</exclude>
-        <exclude>*websocket*</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
