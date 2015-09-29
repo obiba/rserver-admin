@@ -224,9 +224,9 @@
                     <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
                       <arg value="-b" />
                       <!-- Uncomment following options to package locally  -->
-                      <arg value="-i" />
-                      <arg value="-us" />
-                      <arg value="-uc" />
+                      <!--<arg value="-i" />-->
+                      <!--<arg value="-us" />-->
+                      <!--<arg value="-uc" />-->
                     </exec>
                   </target>
                 </configuration>
@@ -241,7 +241,7 @@
                   <target>
                     <property name="deb.version" value="${project.version}-b${buildNumber}" />
                     <!-- Deploy deb file in deb repo -->
-                    <copy file="target/${package.name}-${deb.version}_all.deb" todir="${obiba.deb.dir}/${rserver.deploy.dir}" />
+                    <copy file="target/rserver-admin-${deb.version}_all.deb" todir="${obiba.deb.dir}/${rserver.deploy.dir}" />
                   </target>
                 </configuration>
               </execution>
