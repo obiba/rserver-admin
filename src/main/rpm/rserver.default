@@ -19,14 +19,14 @@ RSERVER_USER=rserver
 # location of the rserver distribution file
 RSERVER_DIST=/usr/share/rserver
 
-# rserver home location
+# RServer home location
 RSERVER_HOME=/var/lib/rserver
 
-# rserver log directory or syslog facility
+# RServer log directory or syslog facility
 RSERVER_LOG=/var/log/rserver
 
 # arguments to pass to rserver.
 RSERVER_ARGS=""
 
 # arguments to pass to java
-JAVA_ARGS="-Xmx128M -XX:MaxPermSize=128M -XX:+UseG1GC"
+JAVA_ARGS="-Xms1G -Xmx2G -XX:MaxPermSize=256M -XX:+UseG1GC"
