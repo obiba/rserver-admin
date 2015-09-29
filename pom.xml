@@ -55,7 +55,7 @@
                   <goal>attached-rpm</goal>
                 </goals>
                 <configuration>
-                  <name>rserver</name>
+                  <name>rserver-admin</name>
                   <needarch>noarch</needarch>
                   <version>${project.version}</version>
                   <!--<license>see /usr/share/doc/opal/copyright</license>-->
@@ -255,6 +255,21 @@
                   <target>
                     <!-- Deploy rServer package file in download repo -->
                     <copy file="target/${package.name}-dist.zip" tofile="${obiba.download.dir}/rserver-admin/${rserver.deploy.dir}/rserver-admin-${project.version}-dist.zip" />
+                  </target>
+                </configuration>
+              </execution>
+              <execution>
+                <id>deploy-rpm</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <!-- Deploy rpm file in rpm repo -->
+                    <copy todir="${obiba.rpm.dir}/${rserver.deploy.dir}">
+                      <fileset dir="target/rpm/rserver-admin/RPMS/noarch" />
+                    </copy>
                   </target>
                 </configuration>
               </execution>
