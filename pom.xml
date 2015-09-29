@@ -241,7 +241,7 @@
                   <target>
                     <property name="deb.version" value="${project.version}-b${buildNumber}" />
                     <!-- Deploy deb file in deb repo -->
-                    <copy file="target/rserver-admin-${deb.version}_all.deb" todir="${obiba.deb.dir}/${rserver.deploy.dir}" />
+                    <copy file="target/rserver-admin_${deb.version}_all.deb" todir="${obiba.deb.dir}/${rserver.deploy.dir}" />
                   </target>
                 </configuration>
               </execution>
