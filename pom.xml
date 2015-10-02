@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.obiba.rserver</groupId>
   <artifactId>rserver-admin</artifactId>
@@ -207,12 +206,12 @@
                       </filterset>
                     </copy>
 
-                    <copy todir="${deb.dir}/etc/init.d" file="src/main/deb/init.d/rserver"/>
-                    <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rserver"/>
+                    <copy todir="${deb.dir}/etc/init.d" file="src/main/deb/init.d/rserver" />
+                    <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rserver" />
 
                     <mkdir dir="${deb.dir}/usr/share" />
                     <copy todir="${deb.dir}/usr/share">
-                      <fileset dir="${basedir}/target/${package.name}-dist"/>
+                      <fileset dir="${basedir}/target/${package.name}-dist" />
                     </copy>
                     <move file="${deb.dir}/usr/share/${package.name}" tofile="${deb.dir}/usr/share/${package.name}" />
 
@@ -459,7 +458,7 @@
     <connection>scm:git:git://github.com/obiba/rserver-admin.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/rserver-admin.git</developerConnection>
     <url>https://github.com/obiba/rserver-admin</url>
-    <tag>HEAD</tag>
+    <tag>rserver-admin-1.2.x</tag>
   </scm>
 
   <issueManagement>
