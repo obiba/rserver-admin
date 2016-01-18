@@ -23,11 +23,6 @@ NAME=rserver
 case "$1" in
   1)
 
-    # Create rserver user if it doesn't exist.
-    if ! id rserver > /dev/null 2>&1 ; then
-      adduser --system --home /var/lib/rserver --no-create-home --disabled-password rserver
-    fi
-
     # RServer file structure on Debian
     # /etc/rserver: configuration
     # /usr/share/rserver: executable
