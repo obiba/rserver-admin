@@ -1,21 +1,23 @@
+skipTests = false
 version = 1.2-SNAPSHOT
 current_dir = $(shell pwd)
+mvn_exec = mvn -Dmaven.test.skip=${skipTests}
 
-all:
-	./gradlew clean build
+all: clean install
 
 clean:
-	./gradlew clean
+	${mvn_exec} clean
+
+install:
+	${mvn_exec} install
 
 launch:
-	./gradlew distUnzipped
-	export RSERVER_HOME=$(shell pwd)/build/work/rserver-admin-${version} && \
-	cd build/work/rserver-admin-${version} && \
+	export RSERVER_HOME=$(shell pwd)/target/rserver-admin-${version}-dist/rserver-admin-${version} && \
+	cd target/rserver-admin-${version}-dist/rserver-admin-${version} && \
 	chmod +x ./bin/rserver-admin && \
 	./bin/rserver-admin
 
 launch-debug:
-	./gradlew distUnzipped
 	export RSERVER_HOME=$(shell pwd)/build/work/rserver-admin-${version} && \
 	export JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n && \
 	cd build/work/rserver-admin-${version} && \
@@ -23,13 +25,10 @@ launch-debug:
 	./bin/rserver-admin
 
 deb:
-	./gradlew distDeb
+	mvn clean install -Pci-build
 
 log:
 	tail -f build/work/rserver-admin-${version}/logs/rserver-admin.log
-
-dependencyUpdates:
-	./gradlew dependencyUpdates -Drevision=release
 
 test: status stop start
 
