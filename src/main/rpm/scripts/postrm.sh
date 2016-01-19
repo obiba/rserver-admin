@@ -17,17 +17,11 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-
 case "$1" in
 	0)
     userdel -f rserver || true
     unlink /usr/share/rserver
     rm -rf /var/lib/rserver /var/log/rserver /tmp/rserver /etc/rserver /usr/share/rserver-admin
-  ;;
-
-  *)
-    echo "postrm called with unknown argument \`$1'" >&2
-    exit 1
   ;;
 esac
 
