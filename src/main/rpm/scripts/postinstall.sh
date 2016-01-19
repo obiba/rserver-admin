@@ -4,25 +4,7 @@
 
 set -e
 
-# summary of how this script can be called:
-#        * <postinst> `configure' <most-recently-configured-version>
-#        * <old-postinst> `abort-upgrade' <new version>
-#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
-#          <new-version>
-#        * <postinst> `abort-remove'
-#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
-#          <failed-install-package> <version> `removing'
-#          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
-# the debian-policy package
-
-NAME=rserver
-
-[ -r /etc/default/$NAME ] && . /etc/default/$NAME
-
-case "$1" in
-  1)
-
+installOrUpdate() {
     # RServer file structure on Debian
     # /etc/rserver: configuration
     # /usr/share/rserver: executable
@@ -55,6 +37,32 @@ case "$1" in
     echo "### You can start rserver service by executing:"
     echo "sudo /etc/init.d/rserver start"
 
+    exit 0
+}
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+NAME=rserver
+
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+case "$1" in
+  1)
+    installOrUpdate
+  ;;
+
+  2)
+    installOrUpdate
   ;;
 
   *)

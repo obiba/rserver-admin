@@ -10,3 +10,5 @@ if [ $? != 0 ]; then
 else
     usermod -d /var/lib/rserver rserver
 fi
+
+exit 0

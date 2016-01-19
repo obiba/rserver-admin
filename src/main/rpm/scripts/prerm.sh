@@ -18,28 +18,25 @@ set -e
 
 NAME=opal
 
-case "$1" in
+stopRserver() {
+  if which service >/dev/null 2>&1; then
+    service rserver stop
+  elif which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d rserver stop
+  else
+    /etc/init.d/rserver stop
+  fi
+}
 
-  0)
+if [ "$1" -eq 0 ] || [ "$1" -ge 2 ]; then
+  # removing or upgrading...
+  stopRserver
+
+  if [ "$1" -eq 0 ]; then
+    # removing
     chkconfig --del rserver
+  fi
 
-    # Read configuration variable file if it is present
-    [ -r /etc/default/$NAME ] && . /etc/default/$NAME
-
-    if which service >/dev/null 2>&1; then
-            service rserver stop
-    elif which invoke-rc.d >/dev/null 2>&1; then
-            invoke-rc.d rserver stop
-    else
-            /etc/init.d/rserver stop
-    fi
-  ;;
-
-  *)
-    echo "prerm called with unknown argument \`$1'" >&2
-    exit 1
-  ;;
-esac
-
+fi
 
 exit 0
