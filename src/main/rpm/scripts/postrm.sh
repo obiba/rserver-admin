@@ -21,7 +21,7 @@ case "$1" in
 	0)
     userdel -f rserver || true
     unlink /usr/share/rserver
-    rm -rf /var/lib/rserver /var/log/rserver /tmp/rserver /etc/rserver /usr/share/rserver-admin
+    rm -rf /run/rserver /var/log/rserver /tmp/rserver
   ;;
 esac
 

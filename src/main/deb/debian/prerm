@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for opal
+# prerm script for rserver
 #
 # see: dh_installdeb(1)
 
