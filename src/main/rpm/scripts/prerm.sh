@@ -16,8 +16,6 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-NAME=opal
-
 stopRserver() {
   if which service >/dev/null 2>&1; then
     service rserver stop
