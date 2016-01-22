@@ -12,7 +12,8 @@ installOrUpdate() {
     # /var/log: logs
 
     rm -f /usr/share/rserver
-    ln -s /usr/share/rserver-* /usr/share/rserver
+    new_release="$(ls -t /usr/share/ |grep rserver-admin|head -1)"
+    ln -s /usr/share/${new_release} /usr/share/rserver
 
     if [ ! -e /var/lib/rserver/conf ] ; then
       ln -s /etc/rserver /var/lib/rserver/conf

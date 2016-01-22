@@ -149,7 +149,7 @@
                     <mapping>
                       <directory>/var/log/rserver</directory>
                       <filemode>740</filemode>
-                      <username>opal</username>
+                      <username>rserver</username>
                       <groupname>adm</groupname>
                     </mapping>
                     <mapping>
@@ -398,7 +398,7 @@
   <properties>
     <rserver.deploy.dir>unstable</rserver.deploy.dir>
     <install.dir>/usr/share</install.dir>
-    <rserver.dir>${install.dir}/rserver-admin</rserver.dir>
+    <rserver.dir>${install.dir}/rserver-admin-${project.version}</rserver.dir>
     <package.name>rserver-admin-${project.version}</package.name>
     <dist.location>${basedir}/target/${package.name}-dist/${package.name}</dist.location>
 
