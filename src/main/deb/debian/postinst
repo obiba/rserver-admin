@@ -34,6 +34,7 @@ case "$1" in
       # /var/lib/rserver: data runtime
       # /var/log: logs
 
+      rm -f /usr/share/rserver
       ln -s /usr/share/rserver-admin-* /usr/share/rserver
 
       if [ ! -e /var/lib/rserver/conf ] ; then
