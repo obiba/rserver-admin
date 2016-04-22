@@ -2,7 +2,7 @@
 .gradle/
 .project
 .settings/
-bin/
 build/
 .idea/
 *.iml
+target/
