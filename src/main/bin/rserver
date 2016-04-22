@@ -15,7 +15,7 @@ fi
 # The directory containing the server shell script
 RSERVER_BIN_DIR=`dirname $0`
 # resolve links - $0 may be a softlink
-RSERVER_DIST=$(readlink -f $RSERVER_BIN_DIR/../bin)
+RSERVER_DIST=$(readlink -f $RSERVER_BIN_DIR/..)
 
 export RSERVER_DIST
 
