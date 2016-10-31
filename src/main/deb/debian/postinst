@@ -46,8 +46,10 @@ case "$1" in
       echo $rlibs
       echo "find 1"
       find $rlibs -maxdepth 3 -mindepth 3 -type d
+      echo $?
       echo "find 2"
       find $rlibs -maxdepth 3 -mindepth 3 -type d | grep -v "R/all"
+      echo $?
       rpkgs=`find $rlibs -maxdepth 3 -mindepth 3 -type d | grep -v "R/all"`
       echo $rpkgs
       for pkg in $rpkgs
