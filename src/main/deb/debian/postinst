@@ -41,17 +41,20 @@ case "$1" in
         ln -s /etc/rserver /var/lib/rserver/conf
       fi
 
-      USER_LIB_DIR=/var/lib/rserver/R
-      INSTALLED_PKGS=`find $USER_LIB_DIR -maxdepth 3 -mindepth 3 -type d | grep -v "R/all"`
-      for pkg in $INSTALLED_PKGS
+      rlibs=/var/lib/rserver/R
+      mkdir -p $rlibs
+      echo $rlibs
+      rpkgs=`find $rlibs -maxdepth 3 -mindepth 3 -type d | grep -v "R/all"`
+      echo $rpkgs
+      for pkg in $rpkgs
       do
         echo "R package: " $pkg
-        mkdir -p $USER_LIB_DIR/all
+        mkdir -p $rlibs/all
         pkg_name=`basename $pkg`
         echo "R package name: " $pkg_name
-        if [ ! -e $USER_LIB_DIR/all/$pkg_name ] ; then
-          echo "R package move: " $USER_LIB_DIR/all/$pkg_name
-          mv $pkg $USER_LIB_DIR/all
+        if [ ! -e $rlibs/all/$pkg_name ] ; then
+          echo "R package move: " $rlibs/all/$pkg_name
+          mv $pkg $rlibs/all
         fi
       done
       mkdir -p /var/lib/rserver/R/all
