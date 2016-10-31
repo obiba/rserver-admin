@@ -44,13 +44,7 @@ case "$1" in
       rlibs=/var/lib/rserver/R
       mkdir -p $rlibs
       echo $rlibs
-      echo "find 1"
-      find $rlibs -maxdepth 3 -mindepth 3 -type d
-      echo $?
-      echo "find 2"
-      find $rlibs -maxdepth 3 -mindepth 3 -type d | grep -v library
-      echo $?
-      rpkgs=`find $rlibs -maxdepth 3 -mindepth 3 -type d | grep -v library`
+      rpkgs=`find $rlibs -maxdepth 3 -mindepth 3 -type d`
       echo $rpkgs
       for pkg in $rpkgs
       do
