@@ -41,23 +41,19 @@ case "$1" in
         ln -s /etc/rserver /var/lib/rserver/conf
       fi
 
-      if [ ! -e $rlibs/all ] ; then
-        rlibs=/var/lib/rserver/R
-        mkdir -p $rlibs
+      # move installed r packages to the new library location
+      rlibs=/var/lib/rserver/R
+      mkdir -p $rlibs
+      if [ ! -e $rlibs/library ] ; then
+        mkdir -p $rlibs/library
         rpkgs=`find $rlibs/x* -maxdepth 2 -mindepth 2 -type d`
-        echo $rpkgs
         for pkg in $rpkgs
         do
-          echo "R package: " $pkg
-          mkdir -p $rlibs/all
           pkg_name=`basename $pkg`
-          echo "R package name: " $pkg_name
-          if [ ! -e $rlibs/all/$pkg_name ] ; then
-            echo "R package move: " $rlibs/all/$pkg_name
-            cp -r $pkg $rlibs/all
+          if [ ! -e $rlibs/library/$pkg_name ] ; then
+            mv $pkg $rlibs/library
           fi
         done
-        mkdir -p /var/lib/rserver/R/all
       fi
 
       if [ ! -e /var/log/rserver ] ; then

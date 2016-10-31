@@ -1,6 +1,6 @@
 # install R libraries in a R version independent directory
-if (!file.exists("/var/lib/rserver/R/all")) {
-  dir.create("/var/lib/rserver/R/all", recursive=TRUE)
+if (!file.exists("/var/lib/rserver/R/library")) {
+  dir.create("/var/lib/rserver/R/library", recursive=TRUE)
 }
-.libPaths("/var/lib/rserver/R/all")
+.libPaths("/var/lib/rserver/R/library")
 # newline required

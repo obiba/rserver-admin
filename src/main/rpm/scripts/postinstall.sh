@@ -19,20 +19,20 @@ installOrUpdate() {
       ln -s /etc/rserver /var/lib/rserver/conf
     fi
 
-    USER_LIB_DIR=/var/lib/rserver/R
-    INSTALLED_PKGS=$(find $USER_LIB_DIR -maxdepth 3 -mindepth 3 -type d | grep -v "R/all")
-    for pkg in $INSTALLED_PKGS
-    do
-      #echo "R package: " $pkg
-      mkdir -p $USER_LIB_DIR/all
-      pkg_name=$(basename $pkg)
-      #echo "R package name: " $pkg_name
-      if [ ! -e $USER_LIB_DIR/all/$pkg_name ] ; then
-        #echo "R package copy: " $USER_LIB_DIR/all/$pkg_name
-        mv $pkg $USER_LIB_DIR/all
-      fi
-    done
-    mkdir -p /var/lib/rserver/R/all
+    # move installed r packages to the new library location
+    rlibs=/var/lib/rserver/R
+    mkdir -p $rlibs
+    if [ ! -e $rlibs/library ] ; then
+      mkdir -p $rlibs/library
+      rpkgs=`find $rlibs/x* -maxdepth 2 -mindepth 2 -type d`
+      for pkg in $rpkgs
+      do
+        pkg_name=`basename $pkg`
+        if [ ! -e $rlibs/library/$pkg_name ] ; then
+          mv $pkg $rlibs/library
+        fi
+      done
+    fi
 
     chown -R rserver:adm /var/lib/rserver /var/log/rserver /etc/rserver /tmp/rserver
     chmod -R 750      /var/lib/rserver /var/log/rserver /etc/rserver/ /tmp/rserver
