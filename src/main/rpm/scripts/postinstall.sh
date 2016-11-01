@@ -24,14 +24,16 @@ installOrUpdate() {
     mkdir -p $rlibs
     if [ ! -e $rlibs/library ] ; then
       mkdir -p $rlibs/library
-      rpkgs=`find $rlibs/x* -maxdepth 2 -mindepth 2 -type d`
-      for pkg in $rpkgs
-      do
-        pkg_name=`basename $pkg`
-        if [ ! -e $rlibs/library/$pkg_name ] ; then
-          mv $pkg $rlibs/library
-        fi
-      done
+      if [ -e $rlibs/x* ] ; then
+        rpkgs=`find $rlibs/x* -maxdepth 2 -mindepth 2 -type d`
+        for pkg in $rpkgs
+        do
+          pkg_name=`basename $pkg`
+          if [ ! -e $rlibs/library/$pkg_name ] ; then
+            mv $pkg $rlibs/library
+          fi
+        done
+      fi
     fi
 
     chown -R rserver:adm /var/lib/rserver /var/log/rserver /etc/rserver /tmp/rserver
