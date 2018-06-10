@@ -12,10 +12,36 @@
     <version>1.2.2.RELEASE</version>
   </parent>
 
+  <properties>
+    <install.dir>/usr/share</install.dir>
+    <rserver.dir>${install.dir}/rserver-admin-${project.version}</rserver.dir>
+    <package.name>rserver-admin-${project.version}</package.name>
+    <dist.location>${basedir}/target/${package.name}-dist/${package.name}</dist.location>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+
+    <guava.version>18.0</guava.version>
+    <slf4j.version>1.7.6</slf4j.version>
+    <rforge.version>0.6-8.1</rforge.version>
+
+    <!-- maven plugins -->
+    <github-release-plugin.version>1.2.0</github-release-plugin.version>
+    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+    <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
+    <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
+    <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
+    <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
+    <rpm-maven-plugin.version>2.1.4</rpm-maven-plugin.version>
+  </properties>
+
   <profiles>
     <profile>
       <!-- A profile for the builds performed by the continuous integration server -->
-      <id>ci-build</id>
+      <id>release</id>
       <build>
         <pluginManagement>
           <plugins>
@@ -216,59 +242,16 @@
                     <move file="${deb.dir}/usr/share/${package.name}" tofile="${deb.dir}/usr/share/${package.name}" />
 
                     <mkdir dir="${deb.dir}/etc" />
-                    <move todir="${deb.dir}/etc/rserver">
+                    <copy todir="${deb.dir}/etc/rserver">
                       <fileset dir="${deb.dir}/usr/share/${package.name}/conf" />
-                    </move>
+                    </copy>
 
                     <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
                       <arg value="-b" />
-                      <!-- Uncomment following options to package locally  -->
-                      <!--<arg value="-i" />-->
-                      <!--<arg value="-us" />-->
-                      <!--<arg value="-uc" />-->
+                      <arg value="-i" />
+                      <arg value="-us" />
+                      <arg value="-uc" />
                     </exec>
-                  </target>
-                </configuration>
-              </execution>
-              <execution>
-                <id>deploy-deb</id>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <property name="deb.version" value="${project.version}-b${buildNumber}" />
-                    <!-- Deploy deb file in deb repo -->
-                    <copy file="target/rserver-admin_${deb.version}_all.deb" todir="${obiba.deb.dir}/${rserver.deploy.dir}" />
-                  </target>
-                </configuration>
-              </execution>
-              <execution>
-                <id>deploy-package</id>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <!-- Deploy rServer package file in download repo -->
-                    <copy file="target/${package.name}-dist.zip" tofile="${obiba.download.dir}/rserver-admin/${rserver.deploy.dir}/rserver-admin-${project.version}-dist.zip" />
-                  </target>
-                </configuration>
-              </execution>
-              <execution>
-                <id>deploy-rpm</id>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <!-- Deploy rpm file in rpm repo -->
-                    <copy todir="${obiba.rpm.dir}/${rserver.deploy.dir}">
-                      <fileset dir="target/rpm/rserver-admin/RPMS/noarch" />
-                    </copy>
                   </target>
                 </configuration>
               </execution>
@@ -290,10 +273,35 @@
           <configuration>
             <!-- Use parent version as modules' version -->
             <autoVersionSubmodules>true</autoVersionSubmodules>
-            <releaseProfiles>ci-build,release</releaseProfiles>
+            <releaseProfiles>release</releaseProfiles>
             <!-- Comment this profile because Jenkins crashes while performing the release -->
             <!--<preparationGoals>clean verify install</preparationGoals>-->
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven-dependency-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven-antrun-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>rpm-maven-plugin</artifactId>
+          <version>${rpm-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>de.jutzig</groupId>
+          <artifactId>github-release-plugin</artifactId>
+          <version>${github-release-plugin.version}</version>
         </plugin>
       </plugins>
 
@@ -321,6 +329,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
@@ -340,6 +349,16 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- Disable default deployer. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -394,34 +413,25 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
-
-  <properties>
-    <rserver.deploy.dir>unstable</rserver.deploy.dir>
-    <install.dir>/usr/share</install.dir>
-    <rserver.dir>${install.dir}/rserver-admin-${project.version}</rserver.dir>
-    <package.name>rserver-admin-${project.version}</package.name>
-    <dist.location>${basedir}/target/${package.name}-dist/${package.name}</dist.location>
-
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-
-    <guava.version>18.0</guava.version>
-    <slf4j.version>1.7.6</slf4j.version>
-    <rforge.version>0.6-8.1</rforge.version>
-    <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
-    <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
-  </properties>
-
+  
   <repositories>
     <repository>
-      <id>obiba.org</id>
-      <name>Obiba Maven 2.x Repository</name>
-      <url>http://repo.obiba.org/repo</url>
+      <id>obiba-releases</id>
+      <name>Obiba Maven Releases Repository</name>
+      <url>https://dl.bintray.com/obiba/maven</url>
       <releases>
         <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>obiba-snapshots</id>
+      <name>Obiba Maven Snapshots Repository</name>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
+      <releases>
+        <enabled>false</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
@@ -429,46 +439,31 @@
     </repository>
   </repositories>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>obiba</id>
-      <url>http://repo.obiba.org/repo</url>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <prerequisites>
-    <maven>3.0.0</maven>
-  </prerequisites>
-
   <distributionManagement>
-
     <repository>
-      <id>obiba-releases</id>
-      <url>http://repo.obiba.org/libs-release-local</url>
+      <id>obiba-bintray</id>
+      <url>https://api.bintray.com/obiba/maven/</url>
     </repository>
-
     <snapshotRepository>
-      <id>obiba-snapshots</id>
-      <url>http://repo.obiba.org/libs-snapshot-local</url>
+      <id>obiba-artifactory</id>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
     </snapshotRepository>
-
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:git://github.com/obiba/rserver-admin.git</connection>
+    <connection>scm:git:https://github.com/obiba/rserver-admin.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/rserver-admin.git</developerConnection>
     <url>https://github.com/obiba/rserver-admin</url>
-    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.obiba.org</url>
+    <system>GitHub</system>
+    <url>https://github.com/obiba/rserver-admin/issues</url>
   </issueManagement>
 
   <ciManagement>
-    <system>Jenkins</system>
-    <url>https://ci.obiba.org/view/Opal/job/Rserver-admin/</url>
+    <system>Travis</system>
+    <url>https://travis-ci.org/obiba/rserver-admin</url>
   </ciManagement>
 
   <mailingLists>
@@ -478,5 +473,12 @@
       <archive>https://groups.google.com/forum/?fromgroups#!forum/obiba-users</archive>
     </mailingList>
   </mailingLists>
+
+  <licenses>
+    <license>
+      <name>GNU Public License version 3</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+    </license>
+  </licenses>
 
 </project>
