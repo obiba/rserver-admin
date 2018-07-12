@@ -32,7 +32,6 @@
     <github-release-plugin.version>1.2.0</github-release-plugin.version>
     <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
     <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
-    <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
     <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
     <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
     <rpm-maven-plugin.version>2.1.4</rpm-maven-plugin.version>
@@ -43,30 +42,6 @@
       <!-- A profile for the builds performed by the continuous integration server -->
       <id>release</id>
       <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>buildnumber-maven-plugin</artifactId>
-              <version>${maven-buildnumber-plugin.version}</version>
-              <executions>
-                <execution>
-                  <id>createBuildNumber</id>
-                  <phase>validate</phase>
-                  <goals>
-                    <goal>create</goal>
-                  </goals>
-                  <configuration>
-                    <format>{0,date,yyyyMMddHHmmss}</format>
-                    <items>
-                      <item>timestamp</item>
-                    </items>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-          </plugins>
-        </pluginManagement>
 
         <plugins>
           <plugin>
@@ -217,7 +192,7 @@
                 <configuration>
                   <target>
                     <property name="deb.dir" value="${basedir}/target/deb" />
-                    <property name="deb.version" value="${project.version}-b${buildNumber}" />
+                    <property name="deb.version" value="${project.version}" />
                     <tstamp>
                       <!-- http://www.debian.org/doc/debian-policy/ch-source.html -->
                       <format property="deb.date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en" />
@@ -306,7 +281,7 @@
       </plugins>
 
     </pluginManagement>
-    
+
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -326,27 +301,6 @@
             <goals>
               <goal>single</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>${maven-buildnumber-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>createBuildNumber</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-            <configuration>
-              <format>{0,date,yyyyMMddHHmmss}</format>
-              <items>
-                <item>timestamp</item>
-              </items>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -413,7 +367,7 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
-  
+
   <repositories>
     <repository>
       <id>obiba-releases</id>
