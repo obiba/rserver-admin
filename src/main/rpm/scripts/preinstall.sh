@@ -22,6 +22,9 @@ else
 
   # set the correct home directory
   usermod -d /var/lib/rserver rserver
+
+  # set the group
+  usermod -g nobody rserver
 fi
 
 exit 0
