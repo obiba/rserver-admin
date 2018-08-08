@@ -5,7 +5,7 @@ getent group adm >/dev/null || groupadd -r adm
 $(getent passwd rserver >/dev/null)
 
 if [ $? != 0 ]; then
-    useradd -r -g adm -d /var/lib/rserver -s /sbin/nologin \
+    useradd -r -g nobody -d /var/lib/rserver -s /sbin/nologin \
         -c "User for RServer Admin" rserver
 else
 
@@ -22,6 +22,9 @@ else
 
   # set the correct home directory
   usermod -d /var/lib/rserver rserver
+
+  # set the group
+  usermod -g nobody rserver
 fi
 
 exit 0
