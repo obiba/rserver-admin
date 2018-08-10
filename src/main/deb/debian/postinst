@@ -23,7 +23,10 @@ set -e
 case "$1" in
     configure)
 
-    	# Create rserver user if it doesn't exist.
+      # Rserve package
+      Rscript -e "install.packages('Rserve', repos='http://cran.rstudio.com')"
+
+      # Create rserver user if it doesn't exist.
       if ! id rserver > /dev/null 2>&1 ; then
         adduser --system --home /var/lib/rserver --disabled-password rserver
       fi
