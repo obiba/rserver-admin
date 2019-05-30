@@ -9,7 +9,8 @@ Homepage: http://www.obiba.org
 Package: rserver-admin
 Architecture: all
 Pre-Depends: debconf, coreutils (>= 6.10)
-Depends: daemon, adduser, psmisc, java7-runtime, r-base
+Depends: daemon, adduser, psmisc, r-base
+Recommends: oracle-java7-installer | openjdk-7-jdk | openjdk-7-jdk-headless | openjdk-7-jre | openjdk-7-jre-headless
 Description: OBiBa R server controller for biobanks
  Rserver administration tool allows to control remotely a R server through REST web services. This ensures a safe execution context of abitrary R scripts on this R server.
  .
