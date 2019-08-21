@@ -442,7 +442,7 @@
     <connection>scm:git:https://github.com/obiba/rserver-admin.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/rserver-admin.git</developerConnection>
     <url>https://github.com/obiba/rserver-admin</url>
-    <tag>HEAD</tag>
+    <tag>rserver-admin-1.6.x</tag>
   </scm>
 
   <issueManagement>
