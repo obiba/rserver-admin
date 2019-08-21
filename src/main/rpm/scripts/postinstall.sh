@@ -46,7 +46,7 @@ installOrUpdate() {
     fi
 
     # Install RServe via R
-    Rscript -e "install.packages('Rserve', repos='http://cran.rstudio.com')"
+    Rscript -e "install.packages('Rserve', repos='https://cran.r-project.org')"
 
     # auto start on reboot
     chkconfig --add rserver
