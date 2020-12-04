@@ -23,7 +23,7 @@ set CLASSPATH=%RSERVER_HOME%\conf;%RSERVER_DIST%\lib\*
 set JAVA_DEBUG=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
 
 rem Add %JAVA_DEBUG% to this line to enable remote JVM debugging (for developers)
-java %JAVA_OPTS% -cp "%CLASSPATH%" -DRSERVER_HOME="%RSERVER_HOME%" -DRSERVER_DIST=%RSERVER_DIST% org.obiba.rserver.Application %*
+java %JAVA_OPTS% -cp "%CLASSPATH%" -DRSERVER_HOME="%RSERVER_HOME%" -DRSERVER_DIST=%RSERVER_DIST% org.springframework.boot.loader.JarLauncher %*
 goto :END
 
 :DEFAULT_JAVA_OPTS

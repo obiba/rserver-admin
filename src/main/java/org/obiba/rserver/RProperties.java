@@ -10,25 +10,26 @@
 
 package org.obiba.rserver;
 
+import com.google.common.base.MoreObjects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import com.google.common.base.Objects;
+import org.springframework.stereotype.Component;
 
 @ConfigurationProperties(value = "r")
+@Component
 public class RProperties {
 
-  private String exec = "/usr/bin/R";
+    private String exec = "/usr/bin/R";
 
-  public String getExec() {
-    return exec;
-  }
+    public String getExec() {
+        return exec;
+    }
 
-  public void setExec(String exec) {
-    this.exec = exec;
-  }
+    public void setExec(String exec) {
+        this.exec = exec;
+    }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("exec", exec).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("exec", exec).toString();
+    }
 }

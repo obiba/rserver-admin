@@ -1,5 +1,5 @@
 skipTests = false
-version = 1.2-SNAPSHOT
+version = 2.0-SNAPSHOT
 current_dir = $(shell pwd)
 mvn_exec = mvn -Dmaven.test.skip=${skipTests}
 
@@ -14,21 +14,24 @@ install:
 launch:
 	export RSERVER_HOME=$(shell pwd)/target/rserver-admin-${version}-dist/rserver-admin-${version} && \
 	cd target/rserver-admin-${version}-dist/rserver-admin-${version} && \
-	chmod +x ./bin/rserver-admin && \
-	./bin/rserver-admin
+	chmod +x ./bin/rserver && \
+	./bin/rserver
 
-launch-debug:
-	export RSERVER_HOME=$(shell pwd)/build/work/rserver-admin-${version} && \
-	export JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n && \
-	cd build/work/rserver-admin-${version} && \
-	chmod +x ./bin/rserver-admin && \
-	./bin/rserver-admin
+debug:
+	export RSERVER_HOME=$(shell pwd)/target/rserver-admin-${version}-dist/rserver-admin-${version} && \
+	export JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,address=8003,suspend=n && \
+	cd target/rserver-admin-${version}-dist/rserver-admin-${version} && \
+	chmod +x ./bin/rserver && \
+	./bin/rserver
 
 deb:
 	mvn clean install -Pci-build
 
 log:
-	tail -f build/work/rserver-admin-${version}/logs/rserver-admin.log
+	tail -f target/rserver-admin-${version}-dist/rserver-admin-${version}/logs/rserver-admin.log
+
+rlog:
+	tail -f target/rserver-admin-${version}-dist/rserver-admin-${version}/logs/Rserve.log
 
 test: status stop start
 

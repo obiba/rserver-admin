@@ -40,16 +40,14 @@
         <include>**/*.*</include>
       </includes>
     </fileSet>
+
+    <fileSet>
+      <directory>target</directory>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+    </fileSet>
   </fileSets>
-  <dependencySets>
-    <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
-      <useProjectArtifact>true</useProjectArtifact>
-      <unpack>false</unpack>
-      <scope>runtime</scope>
-      <excludes>
-        <exclude>*commons-logging*</exclude>
-      </excludes>
-    </dependencySet>
-  </dependencySets>
+
 </assembly>
