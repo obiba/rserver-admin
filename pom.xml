@@ -31,7 +31,7 @@
     <guava.version>30.0-jre</guava.version>
     <junit.version>4.13.1</junit.version>
     <slf4j.version>1.7.6</slf4j.version>
-    <rforge.version>0.6-8.1</rforge.version>
+    <rserve.version>0.6-8.1</rserve.version>
 
     <!-- maven plugins -->
     <github-release-plugin.version>1.2.0</github-release-plugin.version>
@@ -384,13 +384,13 @@
     <dependency>
       <groupId>net.rforge</groupId>
       <artifactId>Rserve</artifactId>
-      <version>${rforge.version}</version>
+      <version>${rserve.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.rforge</groupId>
       <artifactId>REngine</artifactId>
-      <version>${rforge.version}</version>
+      <version>${rserve.version}</version>
       <scope>compile</scope>
     </dependency>
 
@@ -428,6 +428,10 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

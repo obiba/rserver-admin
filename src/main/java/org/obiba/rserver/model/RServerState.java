@@ -1,13 +1,13 @@
-package org.obiba.rserver.service;
+package org.obiba.rserver.model;
 
 /**
  * State of the server: running status and how to connect it.
  */
 public interface RServerState {
 
-  boolean isRunning();
+    boolean isRunning();
 
-  Integer getPort();
+    Integer getPort();
 
-  String getEncoding();
+    String getEncoding();
 }

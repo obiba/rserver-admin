@@ -50,3 +50,11 @@ stop:
 	@echo
 	@echo
 
+new-session:
+	curl -v -X POST localhost:6312/r/sessions -H 'Content-Type:application/json'
+
+get-session:
+	curl -v -X GET localhost:6312/r/session/${id} -H 'Content-Type:application/json'
+
+delete-session:
+	curl -v -X DELETE localhost:6312/r/session/${id} -H 'Content-Type:application/json'

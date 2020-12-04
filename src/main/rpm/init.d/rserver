@@ -35,7 +35,7 @@ RSERVER_USER=rserver     # User to use to run the service
 RSERVER_GROUP=nobody        # Group to use to run the service
 DAEMON=daemon            # CentOS daemon is a function in '/lib/lsb/init-functions'
 DAEMON_ARGS=""           # Arguments to run the daemon with
-MAIN_CLASS=org.obiba.rserver.Application
+MAIN_CLASS=org.springframework.boot.loader.JarLauncher
 PID_DIR=/var/run/$NAME
 SCRIPTNAME=/etc/init.d/$NAME
 

@@ -10,41 +10,38 @@
 
 package org.obiba.rserver.rest;
 
+import org.obiba.rserver.model.RServerState;
 import org.obiba.rserver.service.RServerService;
-import org.obiba.rserver.service.RServerState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rserver")
 public class RServerController {
 
-  @Autowired
-  private RServerService rServerService;
+    @Autowired
+    private RServerService rServerService;
 
-  @RequestMapping(method = RequestMethod.GET)
-  @ResponseBody
-  public RServerState getRServerState() {
-    return rServerService;
-  }
-
-  @RequestMapping(method = RequestMethod.PUT)
-  @ResponseBody
-  public RServerState start() {
-    if(!rServerService.isRunning()) {
-      rServerService.start();
+    @GetMapping
+    @ResponseBody
+    public RServerState getRServerState() {
+        return rServerService;
     }
-    return rServerService;
-  }
 
-  @RequestMapping(method = RequestMethod.DELETE)
-  @ResponseBody
-  public RServerState stop() {
-    rServerService.stop();
-    return rServerService;
-  }
+    @PutMapping
+    @ResponseBody
+    public RServerState start() {
+        if (!rServerService.isRunning()) {
+            rServerService.start();
+        }
+        return rServerService;
+    }
+
+    @DeleteMapping
+    @ResponseBody
+    public RServerState stop() {
+        rServerService.stop();
+        return rServerService;
+    }
 
 }

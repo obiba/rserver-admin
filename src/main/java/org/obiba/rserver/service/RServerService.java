@@ -10,17 +10,11 @@
 
 package org.obiba.rserver.service;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.obiba.rserver.RProperties;
 import org.obiba.rserver.Resources;
+import org.obiba.rserver.model.RServerState;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
@@ -28,7 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Service to manage RServer process.

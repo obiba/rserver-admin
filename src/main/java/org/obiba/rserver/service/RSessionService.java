@@ -1,0 +1,85 @@
+package org.obiba.rserver.service;
+
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import org.obiba.rserver.domain.RServeSession;
+import org.obiba.rserver.model.RSession;
+import org.obiba.rserver.r.RRuntimeException;
+import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.RserveException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+/**
+ * Service to manage the R sessions.
+ */
+@Component
+public class RSessionService {
+
+    private static final Logger log = LoggerFactory.getLogger(RSessionService.class);
+
+    @Autowired
+    private RServerService rServerService;
+
+    private Map<String, RServeSession> rSessions = Maps.newConcurrentMap();
+
+    public RSession createRSession() {
+        RServeSession rSession = new RServeSession(newRConnection());
+        rSessions.put(rSession.getId(), rSession);
+        return rSession;
+    }
+
+    public RSession getRSession(String id) {
+        RServeSession rSession = rSessions.get(id);
+        if (rSession == null) throw new RSessionNotFoundException(id);
+        return rSession;
+    }
+
+    public void closeRSession(String id) {
+        RServeSession rSession = rSessions.get(id);
+        if (rSession == null) return;
+        rSessions.remove(id);
+        rSession.close();
+    }
+
+    /**
+     * Creates a new connection to R server.
+     *
+     * @return
+     * @throws RserveException
+     */
+    private RConnection newRConnection() {
+        RConnection conn;
+
+        try {
+            conn = new RConnection(getHost(), getPort());
+
+            if (conn.needLogin()) {
+                //conn.login(username, password);
+            }
+
+            if (!Strings.isNullOrEmpty(rServerService.getEncoding())) {
+                conn.setStringEncoding(rServerService.getEncoding());
+            }
+        } catch (RserveException e) {
+            log.error("Error while connecting to R ({}:{}): {}", getHost(), getPort(), e.getMessage());
+            throw new RRuntimeException(e);
+        }
+
+        return conn;
+    }
+
+    private String getHost() {
+        return "127.0.0.1";
+    }
+
+    private int getPort() {
+        return rServerService.getPort();
+    }
+
+}
