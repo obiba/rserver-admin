@@ -9,7 +9,7 @@
  */
 package org.obiba.rserver.r;
 
-import org.obiba.rserver.domain.RCommand;
+import org.obiba.rserver.domain.RServeCommand;
 
 /**
  * R operation template with extended capabilities for asynchronous execution of R operations.
@@ -29,7 +29,7 @@ public interface RASyncOperationTemplate extends ROperationTemplate {
      *
      * @return
      */
-    Iterable<RCommand> getRCommands();
+    Iterable<RServeCommand> getRCommands();
 
     /**
      * Check if a R command exists with provided identifier.
@@ -46,7 +46,7 @@ public interface RASyncOperationTemplate extends ROperationTemplate {
      * @return
      * @throws NoSuchRCommandException
      */
-    RCommand getRCommand(String id);
+    RServeCommand getRCommand(String id);
 
     /**
      * Get and remove the R command from its identifier.
@@ -55,6 +55,6 @@ public interface RASyncOperationTemplate extends ROperationTemplate {
      * @return
      * @throws NoSuchRCommandException
      */
-    RCommand removeRCommand(String id);
+    RServeCommand removeRCommand(String id);
 
 }

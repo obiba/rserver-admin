@@ -10,7 +10,9 @@
 
 package org.obiba.rserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
+import org.obiba.rserver.model.RCommand;
 import org.obiba.rserver.r.ROperation;
 import org.obiba.rserver.r.ROperationWithResult;
 
@@ -19,7 +21,7 @@ import java.util.Date;
 /**
  * A R command is for deferred execution of an ROperation.
  */
-public class RCommand {
+public class RServeCommand implements RCommand {
     public enum Status {
         PENDING, IN_PROGRESS, COMPLETED, FAILED
     }
@@ -38,7 +40,7 @@ public class RCommand {
 
     private String error;
 
-    public RCommand(String id, ROperation rOperation) {
+    public RServeCommand(String id, ROperation rOperation) {
         this.id = id;
         this.rOperation = rOperation;
         status = Status.PENDING;
@@ -49,12 +51,13 @@ public class RCommand {
         return id;
     }
 
+    @JsonIgnore
     public ROperation getROperation() {
         return rOperation;
     }
 
-    public Status getStatus() {
-        return status;
+    public String getStatus() {
+        return status.toString();
     }
 
     public boolean isFinished() {
@@ -73,7 +76,7 @@ public class RCommand {
         return endDate;
     }
 
-    public boolean hasError() {
+    public boolean isWithError() {
         return !Strings.isNullOrEmpty(error);
     }
 
@@ -81,7 +84,7 @@ public class RCommand {
         return error;
     }
 
-    public boolean hasResult() {
+    public boolean isWithResult() {
         return rOperation instanceof ROperationWithResult && asROperationWithResult().hasResult();
     }
 

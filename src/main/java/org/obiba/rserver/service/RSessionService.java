@@ -35,9 +35,7 @@ public class RSessionService {
     }
 
     public RSession getRSession(String id) {
-        RServeSession rSession = rSessions.get(id);
-        if (rSession == null) throw new RSessionNotFoundException(id);
-        return rSession;
+        return getRServeSession(id);
     }
 
     public void closeRSession(String id) {
@@ -45,6 +43,12 @@ public class RSessionService {
         if (rSession == null) return;
         rSessions.remove(id);
         rSession.close();
+    }
+
+    public RServeSession getRServeSession(String id) {
+        RServeSession rSession = rSessions.get(id);
+        if (rSession == null) throw new RSessionNotFoundException(id);
+        return rSession;
     }
 
     /**

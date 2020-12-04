@@ -58,3 +58,4 @@ get-session:
 
 delete-session:
 	curl -v -X DELETE localhost:6312/r/session/${id} -H 'Content-Type:application/json'
+

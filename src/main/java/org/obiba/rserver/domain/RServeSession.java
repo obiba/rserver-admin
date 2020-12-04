@@ -1,5 +1,6 @@
 package org.obiba.rserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import org.obiba.rserver.model.RSession;
 import org.obiba.rserver.r.NoSuchRCommandException;
@@ -27,9 +28,9 @@ public class RServeSession implements RSession {
 
     private final String id;
 
-    private final Date created;
+    private final Date createDate;
 
-    private Date lastAccess;
+    private Date lastAccessDate;
 
     private String originalWorkDir;
 
@@ -44,12 +45,12 @@ public class RServeSession implements RSession {
     /**
      * R commands to be processed.
      */
-    private final BlockingQueue<RCommand> rCommandQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<RServeCommand> rCommandQueue = new LinkedBlockingQueue<>();
 
     /**
      * All R commands.
      */
-    private final List<RCommand> rCommandList = Collections.synchronizedList(new LinkedList<RCommand>());
+    private final List<RServeCommand> rCommandList = Collections.synchronizedList(new LinkedList<RServeCommand>());
 
     private RCommandsConsumer rCommandsConsumer;
 
@@ -68,8 +69,8 @@ public class RServeSession implements RSession {
             throw new RRuntimeException(e);
         }
         this.id = UUID.randomUUID().toString();
-        this.created = new Date();
-        this.lastAccess = created;
+        this.createDate = new Date();
+        this.lastAccessDate = createDate;
 
         try {
             originalWorkDir = getRWorkDir();
@@ -89,13 +90,13 @@ public class RServeSession implements RSession {
     }
 
     @Override
-    public Date getCreated() {
-        return created;
+    public Date getCreateDate() {
+        return createDate;
     }
 
     @Override
-    public Date getLastAccess() {
-        return lastAccess;
+    public Date getLastAccessDate() {
+        return lastAccessDate;
     }
 
     @Override
@@ -107,10 +108,12 @@ public class RServeSession implements RSession {
     // Management methods
     //
 
+    @JsonIgnore
     public String getWorkDir() {
         return originalWorkDir;
     }
 
+    @JsonIgnore
     public String getTempDir() {
         return originalTempDir;
     }
@@ -123,14 +126,14 @@ public class RServeSession implements RSession {
      */
     public boolean hasExpired(long timeout) {
         Date now = new Date();
-        return !busy && now.getTime() - lastAccess.getTime() > timeout * 60 * 1000;
+        return !busy && now.getTime() - lastAccessDate.getTime() > timeout * 60 * 1000;
     }
 
     /**
      * Update last access date.
      */
     public void touch() {
-        lastAccess = new Date();
+        lastAccessDate = new Date();
     }
 
     @Override
@@ -165,36 +168,37 @@ public class RServeSession implements RSession {
         touch();
         ensureRCommandsConsumer();
         String rCommandId = id + "-" + commandId++;
-        RCommand cmd = new RCommand(rCommandId, rop);
+        RServeCommand cmd = new RServeCommand(rCommandId, rop);
         rCommandList.add(cmd);
         rCommandQueue.offer(cmd);
         return rCommandId;
     }
 
-    public Iterable<RCommand> getRCommands() {
+    @JsonIgnore
+    public Iterable<RServeCommand> getRCommands() {
         touch();
         return rCommandList;
     }
 
     public boolean hasRCommand(String cmdId) {
         touch();
-        for (RCommand rCommand : rCommandList) {
+        for (RServeCommand rCommand : rCommandList) {
             if (rCommand.getId().equals(cmdId)) return true;
         }
         return false;
     }
 
-    public RCommand getRCommand(String cmdId) {
+    public RServeCommand getRCommand(String cmdId) {
         touch();
-        for (RCommand rCommand : rCommandList) {
+        for (RServeCommand rCommand : rCommandList) {
             if (rCommand.getId().equals(cmdId)) return rCommand;
         }
         throw new NoSuchRCommandException(cmdId);
     }
 
-    public RCommand removeRCommand(String cmdId) {
+    public RServeCommand removeRCommand(String cmdId) {
         touch();
-        RCommand rCommand = getRCommand(cmdId);
+        RServeCommand rCommand = getRCommand(cmdId);
         synchronized (rCommand) {
             rCommand.notifyAll();
         }
@@ -235,14 +239,13 @@ public class RServeSession implements RSession {
         }
     }
 
-    public boolean isClosed() {
-        return rSession == null;
-    }
-
     //
     // private methods
     //
 
+    private boolean isClosed() {
+        return rSession == null;
+    }
 
     private String getRWorkDir() throws REXPMismatchException {
         RScriptROperation rop = new RScriptROperation("base::getwd()", false);
@@ -352,7 +355,7 @@ public class RServeSession implements RSession {
             }
         }
 
-        private void consume(RCommand rCommand) {
+        private void consume(RServeCommand rCommand) {
             try {
                 rCommand.inProgress();
                 execute(rCommand.getROperation());

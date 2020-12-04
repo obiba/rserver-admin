@@ -9,10 +9,10 @@ public interface RSession {
     String getId();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    Date getCreated();
+    Date getCreateDate();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    Date getLastAccess();
+    Date getLastAccessDate();
 
     boolean isBusy();
 

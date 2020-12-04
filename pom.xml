@@ -14,7 +14,9 @@
   </parent>
 
   <properties>
-    <java.version>1.8</java.version>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+
     <install.dir>/usr/share</install.dir>
     <rserver.dir>${install.dir}/rserver-admin-${project.version}</rserver.dir>
     <package.name>rserver-admin-${project.version}</package.name>
@@ -25,8 +27,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.compiler.source>1.7</maven.compiler.source>
 
     <guava.version>30.0-jre</guava.version>
     <junit.version>4.13.1</junit.version>
@@ -320,6 +320,7 @@
     </pluginManagement>
 
     <plugins>
+
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
