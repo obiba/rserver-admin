@@ -34,13 +34,6 @@ public class RSessionController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value = "/r/session/{id}/_assign", consumes = MediaType.TEXT_PLAIN_VALUE)
-    ResponseEntity<RCommand> assignValue(@PathVariable String id, @RequestParam(name = "s") String symbol,
-                                         @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                         @RequestBody String value, UriComponentsBuilder ucb) {
-        return assignScript(id, symbol, async, value, ucb);
-    }
-
     @PostMapping(value = "/r/session/{id}/_assign", consumes = "application/x-rscript")
     ResponseEntity<RCommand> assignScript(@PathVariable String id, @RequestParam(name = "s") String symbol,
                                           @RequestParam(name = "async", defaultValue = "false") boolean async,
@@ -51,8 +44,8 @@ public class RSessionController {
 
     @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript")
     ResponseEntity<?> evalScript(@PathVariable String id,
-                                          @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                          @RequestBody String script, UriComponentsBuilder ucb) {
+                                 @RequestParam(name = "async", defaultValue = "false") boolean async,
+                                 @RequestBody String script, UriComponentsBuilder ucb) {
         RScriptROperation rop = new RScriptROperation(script);
         return doEval(id, rop, async, ucb);
     }
@@ -122,7 +115,7 @@ public class RSessionController {
                     .body(rCommand);
         } else {
             rSession.execute(rop);
-            if(rop.hasResult() && rop.hasRawResult()) {
+            if (rop.hasResult() && rop.hasRawResult()) {
                 return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
             }
             throw new RRuntimeException("No eval result could be extracted");
