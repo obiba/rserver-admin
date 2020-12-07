@@ -56,6 +56,10 @@ public class RServeCommand implements RCommand {
         return rOperation;
     }
 
+    public String getScript() {
+        return rOperation.toString();
+    }
+
     public String getStatus() {
         return status.toString();
     }
