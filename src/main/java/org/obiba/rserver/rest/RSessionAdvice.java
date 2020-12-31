@@ -30,9 +30,16 @@ class RSessionAdvice {
 
     @ResponseBody
     @ExceptionHandler(RRuntimeException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ErrorMessage rRuntimeHandler(RRuntimeException ex) {
         return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorMessage illegalArgumentHandler(IllegalArgumentException ex) {
+        return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
     }
 
 }

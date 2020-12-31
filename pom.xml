@@ -28,6 +28,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <fileupload.version>1.3.3</fileupload.version>
     <guava.version>30.0-jre</guava.version>
     <junit.version>4.13.1</junit.version>
     <slf4j.version>1.7.6</slf4j.version>
@@ -393,6 +394,12 @@
       <artifactId>REngine</artifactId>
       <version>${rserve.version}</version>
       <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>${fileupload.version}</version>
     </dependency>
 
     <dependency>
