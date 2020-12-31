@@ -28,6 +28,8 @@ public class RServeSession implements RSession {
 
     private final String id;
 
+    private final String subject;
+
     private final Date createDate;
 
     private Date lastAccessDate;
@@ -61,7 +63,8 @@ public class RServeSession implements RSession {
      */
     private int commandId = 1;
 
-    public RServeSession(RConnection connection) {
+    public RServeSession(String subject, RConnection connection) {
+        this.subject = subject;
         try {
             rSession = connection.detach();
         } catch (RserveException e) {
@@ -87,6 +90,11 @@ public class RServeSession implements RSession {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String getSubject() {
+        return subject;
     }
 
     @Override

@@ -28,8 +28,8 @@ public class RSessionService {
 
     private Map<String, RServeSession> rSessions = Maps.newConcurrentMap();
 
-    public RSession createRSession() {
-        RServeSession rSession = new RServeSession(newRConnection());
+    public RSession createRSession(String subject) {
+        RServeSession rSession = new RServeSession(subject, newRConnection());
         rSessions.put(rSession.getId(), rSession);
         return rSession;
     }

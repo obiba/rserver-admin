@@ -8,6 +8,8 @@ public interface RSession {
 
     String getId();
 
+    String getSubject();
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     Date getCreateDate();
 
