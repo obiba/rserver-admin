@@ -22,12 +22,22 @@ public class RServerController {
     @Autowired
     private RServerService rServerService;
 
+    /**
+     * Get the R server state.
+     *
+     * @return
+     */
     @GetMapping
     @ResponseBody
     public RServerState getRServerState() {
         return rServerService;
     }
 
+    /**
+     * Start the R server if not already running.
+     *
+     * @return The R server state
+     */
     @PutMapping
     @ResponseBody
     public RServerState start() {
@@ -37,6 +47,11 @@ public class RServerController {
         return rServerService;
     }
 
+    /**
+     * Stop the R server.
+     *
+     * @return The R server state
+     */
     @DeleteMapping
     @ResponseBody
     public RServerState stop() {

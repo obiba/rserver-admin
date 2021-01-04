@@ -31,17 +31,40 @@ public class RSessionController {
     @Autowired
     private RSessionService rSessionService;
 
+    /**
+     * Get the R session object.
+     *
+     * @param id R session ID
+     * @return
+     */
     @GetMapping("/r/session/{id}")
     RSession getSession(@PathVariable String id) {
         return rSessionService.getRSession(id);
     }
 
+    /**
+     * Close the R session.
+     *
+     * @param id R session ID
+     * @return
+     */
     @DeleteMapping("/r/session/{id}")
     ResponseEntity<?> deleteSession(@PathVariable String id) {
         rSessionService.closeRSession(id);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Assign an R expression to a symbol. If asynchronous, the R command object
+     * is returned.
+     *
+     * @param id R session ID
+     * @param symbol The R symbol to assign in the R session.
+     * @param async If true, the command is put in a queue and executed sequentially when possible.
+     * @param script The R expression to evaluate.
+     * @param ucb
+     * @return
+     */
     @PostMapping(value = "/r/session/{id}/_assign", consumes = "application/x-rscript")
     ResponseEntity<RCommand> assignScript(@PathVariable String id, @RequestParam(name = "s") String symbol,
                                           @RequestParam(name = "async", defaultValue = "false") boolean async,
@@ -50,6 +73,16 @@ public class RSessionController {
         return doAssign(id, rop, async, ucb);
     }
 
+    /**
+     * Evaluates an R expression. If asynchronous, the R command object is returned, else
+     * the resulting R object is returned in R serialization format (use base::unserialize() to extract the object).
+     *
+     * @param id R session ID
+     * @param async If true, the command is put in a queue and executed sequentially when possible.
+     * @param script The R expression to evaluate.
+     * @param ucb
+     * @return
+     */
     @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/octet-stream")
     ResponseEntity<?> evalScript(@PathVariable String id,
                                  @RequestParam(name = "async", defaultValue = "false") boolean async,
@@ -58,10 +91,20 @@ public class RSessionController {
         return doEval(id, rop, async, ucb);
     }
 
+    /**
+     * Evaluates an R expression. If asynchronous, the R command object is returned, else
+     * the resulting R object is returned in JSON format.
+     *
+     * @param id R session ID
+     * @param async If true, the command is put in a queue and executed sequentially when possible.
+     * @param script The R expression to evaluate.
+     * @param ucb
+     * @return
+     */
     @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/json")
     ResponseEntity<?> evalScriptJSON(@PathVariable String id,
-                                 @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                 @RequestBody String script, UriComponentsBuilder ucb) {
+                                     @RequestParam(name = "async", defaultValue = "false") boolean async,
+                                     @RequestBody String script, UriComponentsBuilder ucb) {
         RScriptROperation rop = new RScriptROperation(String.format("jsonlite::toJSON(%s)", script), false);
         return doEval(id, rop, async, ucb);
     }
@@ -70,6 +113,16 @@ public class RSessionController {
     // File transfers
     //
 
+    /**
+     * Upload a file at specified location, either relative to the R session root or to the R session temporary directory.
+     *
+     * @param id R session ID
+     * @param file File data
+     * @param path Relative path where to upload file (any missing parent directories will be created).
+     * @param overwrite Overwrite the file it already exists.
+     * @param temp If true, the root directory is the R session's temporary directory instead of the original working directory.
+     * @return
+     */
     @PostMapping(value = "/r/session/{id}/_upload", consumes = "multipart/form-data")
     ResponseEntity<?> uploadFile(@PathVariable String id,
                                  @RequestParam("file") CommonsMultipartFile file,
@@ -86,6 +139,14 @@ public class RSessionController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Download a file.
+     *
+     * @param id R sesison ID
+     * @param path Relative path of the file.
+     * @param temp If true, the root directory is the R session's temporary directory instead of the original working directory.
+     * @param response
+     */
     @GetMapping("/r/session/{id}/_download")
     void downloadFile(HttpServletResponse response,
                       @PathVariable String id,
@@ -126,22 +187,51 @@ public class RSessionController {
     // Commands management
     //
 
+    /**
+     * Get the R session's commands.
+     *
+     * @param id R session ID
+     * @return
+     */
     @GetMapping("/r/session/{id}/commands")
     List<RCommand> getCommands(@PathVariable String id) {
         return StreamSupport.stream(getRServeSession(id).getRCommands().spliterator(), false)
                 .map(c -> (RCommand) c).collect(Collectors.toList());
     }
 
+    /**
+     * Get a R session's command.
+     *
+     * @param id R session ID
+     * @param cmdId R command ID
+     * @return
+     */
     @GetMapping("/r/session/{id}/command/{cmdId}")
     RCommand getCommand(@PathVariable String id, @PathVariable String cmdId) {
         return getRServeSession(id).getRCommand(cmdId);
     }
 
+    /**
+     * Delete a R session's command.
+     *
+     * @param id R session ID
+     * @param cmdId R command ID
+     * @return
+     */
     @DeleteMapping("/r/session/{id}/command/{cmdId}")
     RCommand deleteCommand(@PathVariable String id, @PathVariable String cmdId) {
         return getRServeSession(id).removeRCommand(cmdId);
     }
 
+    /**
+     * Get the result of the R session's command.
+     *
+     * @param id R session ID
+     * @param cmdId R command ID
+     * @param wait If true, wait for the command to complete.
+     * @param remove Remove command from list after result has been retrieved.
+     * @return
+     */
     @GetMapping(value = "/r/session/{id}/command/{cmdId}/result", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     ResponseEntity<?> getCommandResult(@PathVariable String id, @PathVariable String cmdId,
                                        @RequestParam(name = "wait", defaultValue = "false") boolean wait,
@@ -227,8 +317,16 @@ public class RSessionController {
         ResponseEntity<?> resp = ResponseEntity.noContent().build();
         if (rCommand.isWithResult()) {
             ROperationWithResult rop = rCommand.asROperationWithResult();
-            if (rop.hasRawResult()) {
-                resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
+            if (rop.hasResult()) {
+                if (rop.hasRawResult()) {
+                    resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
+                } else {
+                    try {
+                        resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
+                    } catch (REXPMismatchException e) {
+                        throw new RRuntimeException("No eval result could be extracted as a string");
+                    }
+                }
             }
         }
         if (remove) rSession.removeRCommand(rCommand.getId());
