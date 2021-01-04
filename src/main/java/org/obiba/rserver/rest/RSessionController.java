@@ -10,6 +10,7 @@ import org.obiba.rserver.model.RCommand;
 import org.obiba.rserver.model.RSession;
 import org.obiba.rserver.r.*;
 import org.obiba.rserver.service.RSessionService;
+import org.rosuda.REngine.REXPMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,11 +50,19 @@ public class RSessionController {
         return doAssign(id, rop, async, ucb);
     }
 
-    @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript")
+    @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/octet-stream")
     ResponseEntity<?> evalScript(@PathVariable String id,
                                  @RequestParam(name = "async", defaultValue = "false") boolean async,
                                  @RequestBody String script, UriComponentsBuilder ucb) {
         RScriptROperation rop = new RScriptROperation(script);
+        return doEval(id, rop, async, ucb);
+    }
+
+    @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/json")
+    ResponseEntity<?> evalScriptJSON(@PathVariable String id,
+                                 @RequestParam(name = "async", defaultValue = "false") boolean async,
+                                 @RequestBody String script, UriComponentsBuilder ucb) {
+        RScriptROperation rop = new RScriptROperation(String.format("jsonlite::toJSON(%s)", script), false);
         return doEval(id, rop, async, ucb);
     }
 
@@ -179,11 +188,20 @@ public class RSessionController {
             String rCommandId = rSession.executeAsync(rop);
             RCommand rCommand = rSession.getRCommand(rCommandId);
             return ResponseEntity.created(ucb.path("/r/session/{id}/command/{rid}").buildAndExpand(rSession.getId(), rCommandId).toUri())
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(rCommand);
         } else {
             rSession.execute(rop);
-            if (rop.hasResult() && rop.hasRawResult()) {
-                return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
+            if (rop.hasResult()) {
+                if (rop.hasRawResult())
+                    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
+                else {
+                    try {
+                        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
+                    } catch (REXPMismatchException e) {
+                        throw new RRuntimeException("No eval result could be extracted as a string");
+                    }
+                }
             }
             throw new RRuntimeException("No eval result could be extracted");
         }

@@ -52,6 +52,7 @@ public class REvaluationRuntimeException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return super.getMessage() + " -> " + Joiner.on("; ").join(getRMessages());
+        List<String> rMsgs = getRMessages();
+        return rMsgs.isEmpty() ? super.getMessage() : Joiner.on("; ").join(getRMessages());
     }
 }

@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Service to manage the R sessions.
@@ -27,6 +29,10 @@ public class RSessionService {
     private RServerService rServerService;
 
     private Map<String, RServeSession> rSessions = Maps.newConcurrentMap();
+
+    public List<RSession> getRSessions() {
+        return rSessions.values().stream().map(s -> (RSession) s).collect(Collectors.toList());
+    }
 
     public RSession createRSession(String subject) {
         RServeSession rSession = new RServeSession(subject, newRConnection());

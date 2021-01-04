@@ -3,6 +3,7 @@ package org.obiba.rserver.rest;
 import org.obiba.rserver.domain.ExceptionErrorMessage;
 import org.obiba.rserver.model.ErrorMessage;
 import org.obiba.rserver.r.NoSuchRCommandException;
+import org.obiba.rserver.r.REvaluationRuntimeException;
 import org.obiba.rserver.r.RRuntimeException;
 import org.obiba.rserver.service.RSessionNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,13 @@ class RSessionAdvice {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorMessage illegalArgumentHandler(IllegalArgumentException ex) {
+        return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(REvaluationRuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorMessage illegalArgumentHandler(REvaluationRuntimeException ex) {
         return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
     }
 
