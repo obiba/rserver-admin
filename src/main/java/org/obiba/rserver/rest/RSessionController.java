@@ -11,6 +11,8 @@ import org.obiba.rserver.model.RSession;
 import org.obiba.rserver.r.*;
 import org.obiba.rserver.service.RSessionService;
 import org.rosuda.REngine.REXPMismatchException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +23,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @RestController
 public class RSessionController {
+
+    private static final Logger log = LoggerFactory.getLogger(RSessionController.class);
 
     @Autowired
     private RSessionService rSessionService;
@@ -58,9 +63,9 @@ public class RSessionController {
      * Assign an R expression to a symbol. If asynchronous, the R command object
      * is returned.
      *
-     * @param id R session ID
+     * @param id     R session ID
      * @param symbol The R symbol to assign in the R session.
-     * @param async If true, the command is put in a queue and executed sequentially when possible.
+     * @param async  If true, the command is put in a queue and executed sequentially when possible.
      * @param script The R expression to evaluate.
      * @param ucb
      * @return
@@ -77,8 +82,8 @@ public class RSessionController {
      * Evaluates an R expression. If asynchronous, the R command object is returned, else
      * the resulting R object is returned in R serialization format (use base::unserialize() to extract the object).
      *
-     * @param id R session ID
-     * @param async If true, the command is put in a queue and executed sequentially when possible.
+     * @param id     R session ID
+     * @param async  If true, the command is put in a queue and executed sequentially when possible.
      * @param script The R expression to evaluate.
      * @param ucb
      * @return
@@ -95,8 +100,8 @@ public class RSessionController {
      * Evaluates an R expression. If asynchronous, the R command object is returned, else
      * the resulting R object is returned in JSON format.
      *
-     * @param id R session ID
-     * @param async If true, the command is put in a queue and executed sequentially when possible.
+     * @param id     R session ID
+     * @param async  If true, the command is put in a queue and executed sequentially when possible.
      * @param script The R expression to evaluate.
      * @param ucb
      * @return
@@ -116,11 +121,11 @@ public class RSessionController {
     /**
      * Upload a file at specified location, either relative to the R session root or to the R session temporary directory.
      *
-     * @param id R session ID
-     * @param file File data
-     * @param path Relative path where to upload file (any missing parent directories will be created).
+     * @param id        R session ID
+     * @param file      File data
+     * @param path      Relative path where to upload file (any missing parent directories will be created).
      * @param overwrite Overwrite the file it already exists.
-     * @param temp If true, the root directory is the R session's temporary directory instead of the original working directory.
+     * @param temp      If true, the root directory is the R session's temporary directory instead of the original working directory.
      * @return
      */
     @PostMapping(value = "/r/session/{id}/_upload", consumes = "multipart/form-data")
@@ -134,6 +139,7 @@ public class RSessionController {
         try {
             doWriteFile(file.getInputStream(), temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), destinationPath, overwrite);
         } catch (IOException e) {
+            log.error("File write failed", e);
             throw new RRuntimeException("File write failed");
         }
         return ResponseEntity.ok().build();
@@ -142,9 +148,9 @@ public class RSessionController {
     /**
      * Download a file.
      *
-     * @param id R sesison ID
-     * @param path Relative path of the file.
-     * @param temp If true, the root directory is the R session's temporary directory instead of the original working directory.
+     * @param id       R session ID
+     * @param path     Relative path of the file.
+     * @param temp     If true, the root directory is the R session's temporary directory instead of the original working directory.
      * @param response
      */
     @GetMapping("/r/session/{id}/_download")
@@ -154,6 +160,27 @@ public class RSessionController {
                       @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
         RServeSession rServeSession = getRServeSession(id);
         File sourceFile = new File(temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), path);
+
+        // verify file exist and is regular
+        if (!sourceFile.exists()) {
+            throw new IllegalArgumentException("File does not exist");
+        } else if (sourceFile.isDirectory()) {
+            throw new IllegalArgumentException("File is a directory");
+        }
+
+        // verify download is from R session's work or temp folder
+        try {
+            Path sourcePath = sourceFile.toPath().toRealPath();
+            Path workPath = new File(rServeSession.getWorkDir()).toPath().toRealPath();
+            Path tempPath = new File(rServeSession.getTempDir()).toPath().toRealPath();
+            if (!sourcePath.startsWith(workPath) && !sourcePath.startsWith(tempPath)) {
+                throw new IllegalArgumentException("Source file path is not valid");
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Source file path is not valid");
+        }
+
+        // guess mime type and prepare response header
         String mimeType = URLConnection.guessContentTypeFromName(sourceFile.getName());
         if (Strings.isNullOrEmpty(mimeType)) {
             try (InputStream in = new FileInputStream(sourceFile)) {
@@ -167,19 +194,16 @@ public class RSessionController {
             mimeType = "application/octet-stream";
         }
         response.setContentType(mimeType);
-        //response.setContentLength((int) sourceFile.length());
-        String headerKey = "Content-Disposition";
-        String headerValue = String.format("attachment; filename=\"%s\"", sourceFile.getName());
-        response.setHeader(headerKey, headerValue);
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", sourceFile.getName()));
 
-        // write bytes read from the input stream into the output stream
+        // write file in response stream
         try {
             // copies all bytes from a file to an output stream
             Files.copy(sourceFile, response.getOutputStream());
             // flushes output stream
             response.getOutputStream().flush();
         } catch (IOException e) {
-            throw new RRuntimeException("File read failed");
+            throw new IllegalArgumentException("File read failed");
         }
     }
 
@@ -202,7 +226,7 @@ public class RSessionController {
     /**
      * Get a R session's command.
      *
-     * @param id R session ID
+     * @param id    R session ID
      * @param cmdId R command ID
      * @return
      */
@@ -214,7 +238,7 @@ public class RSessionController {
     /**
      * Delete a R session's command.
      *
-     * @param id R session ID
+     * @param id    R session ID
      * @param cmdId R command ID
      * @return
      */
@@ -226,9 +250,9 @@ public class RSessionController {
     /**
      * Get the result of the R session's command.
      *
-     * @param id R session ID
-     * @param cmdId R command ID
-     * @param wait If true, wait for the command to complete.
+     * @param id     R session ID
+     * @param cmdId  R command ID
+     * @param wait   If true, wait for the command to complete.
      * @param remove Remove command from list after result has been retrieved.
      * @return
      */
@@ -299,14 +323,22 @@ public class RSessionController {
 
     private void doWriteFile(InputStream in, String rootFolder, String destinationPath, boolean overwrite) throws IOException {
         File outFile = new File(rootFolder, destinationPath);
-        if (outFile.exists() && !overwrite) {
-            throw new IllegalArgumentException("File exists and cannot be overridden");
+        if (outFile.exists()) {
+            if (outFile.isDirectory())
+                throw new IllegalArgumentException("Destination file cannot be a directory");
+            else if (!overwrite)
+                throw new IllegalArgumentException("File exists and cannot be overridden");
         }
-        if (!outFile.getParentFile().exists()) {
-            if (!outFile.getParentFile().mkdirs()) {
-                throw new IllegalArgumentException("File parent folder cannot be created");
-            }
+        // make sure the destination is in the root folder
+        Path rootPath = new File(rootFolder).toPath().toRealPath();
+        File parentFile = outFile.getParentFile();
+        while (!parentFile.exists()) parentFile = parentFile.getParentFile();
+        Path parentPath = parentFile.toPath().toRealPath();
+        if (!parentPath.startsWith(rootPath)) {
+            throw new IllegalArgumentException("Destination folder is not valid");
         }
+        if (!outFile.getParentFile().exists() && !outFile.getParentFile().mkdirs())
+            throw new IllegalArgumentException("File parent folder cannot be created");
 
         try (FileOutputStream out = new FileOutputStream(outFile)) {
             ByteStreams.copy(in, out);
